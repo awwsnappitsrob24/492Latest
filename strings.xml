@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">Beachbuddy</string>
+    <string name="action_settings">Settings</string>
+
+    <string-array name="menu_array">
+        <item>Search</item>
+        <item>About</item>
+    </string-array>
+</resources>

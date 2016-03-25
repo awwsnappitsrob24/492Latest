@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Class Registration"
+        android:id="@+id/creg_tview"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="30dp"
+        android:layout_marginTop="27dp" />
+
+
+    <LinearLayout
+        android:id="@+id/formLayout1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_below="@+id/creg_tview"
+        android:layout_alignStart="@+id/creg_tview"
+        android:layout_marginTop="44dp">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="fill_horizontal"
+            android:layout_alignStart="@+id/formLayout1">
+            <EditText
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:ems="7"
+                android:hint="Course Name"
+                android:id="@+id/classnameEText"/>
+            <EditText
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ems="4"
+                android:hint="Course #"
+                android:id="@+id/courseNumEText"
+                android:layout_gravity="center"/>
+            <EditText
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ems="4"
+                android:hint="Year"
+                android:id="@+id/yearEText"
+                android:layout_gravity="center"/>
+        </LinearLayout>
+
+        <EditText
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ems="15"
+            android:id="@+id/inst_fname"
+            android:hint="Your Email"
+            android:layout_gravity="fill_horizontal"
+            android:layout_alignStart="@+id/formLayout1"
+            />
+        <EditText
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ems="7"
+            android:hint="Instructor Name"
+            android:id="@+id/inst_lname"
+            android:layout_alignStart="@+id/formLayout1"
+            />
+
+    </LinearLayout>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Add Class"
+        android:id="@+id/addClassButton"
+        android:layout_alignBaseline="@+id/toMainButton"
+        android:layout_alignBottom="@+id/toMainButton"
+        android:layout_alignStart="@+id/formLayout1"
+        android:onClick="classReg"/>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Go to Main Page"
+        android:id="@+id/toMainButton"
+        android:layout_marginBottom="81dp"
+        android:layout_alignParentBottom="true"
+        android:layout_toEndOf="@+id/creg_tview"
+        android:onClick="goToMainPage"/>
+
+</RelativeLayout>

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+        <EditText
+            android:layout_width="136dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/classSearch"
+            android:layout_gravity="center_horizontal|top"
+            android:hint="Class Search"
+            android:layout_alignParentStart="true"
+            android:layout_alignBottom="@+id/search"
+            android:layout_toStartOf="@+id/search" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Search"
+            android:onClick="getJSON"
+            android:id="@+id/search"
+            android:layout_gravity="center_horizontal|bottom"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true" />
+
+    <ListView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/listView"
+        android:layout_below="@+id/classSearch"
+        android:layout_alignParentStart="true" />
+
+</RelativeLayout>
