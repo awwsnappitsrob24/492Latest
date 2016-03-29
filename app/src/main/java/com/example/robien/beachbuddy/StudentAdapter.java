@@ -46,7 +46,10 @@ public class StudentAdapter extends ArrayAdapter {
             row = layoutInflater.inflate(R.layout.row_layout, parent, false);
             studentHolder = new StudentHolder();
             studentHolder.tx_name = (TextView)row.findViewById(R.id.tx_name);
+            studentHolder.tx_className = (TextView)row.findViewById(R.id.tx_cName);
+            studentHolder.tx_classNum = (TextView)row.findViewById(R.id.tx_cNum);
             studentHolder.tx_email = (TextView)row.findViewById(R.id.tx_email);
+
             row.setTag(studentHolder);
         }
         else {
@@ -56,11 +59,12 @@ public class StudentAdapter extends ArrayAdapter {
         Student student = (Student)this.getItem(position);
         studentHolder.tx_name.setText(student.getName());
         studentHolder.tx_email.setText(student.getEmail());
-
+        studentHolder.tx_className.setText(student.getClassName());
+        studentHolder.tx_classNum.setText(student.getClassNum());
         return row;
     }
 
     static class StudentHolder {
-        TextView tx_name, tx_email;
+        TextView tx_name, tx_className, tx_classNum, tx_email;
     }
 }

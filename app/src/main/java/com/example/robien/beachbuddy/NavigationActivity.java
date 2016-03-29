@@ -56,7 +56,7 @@ public class NavigationActivity extends AppCompatActivity {
     ListView listView;
     Student selectedStudent;
 
-    static String name, email, studentName, studentEmail;
+    static String name, email, studentName, studentEmail, className, classNum;
 
 
     public static String ID; // to save the facebook ID (will need in another class)
@@ -118,7 +118,6 @@ public class NavigationActivity extends AppCompatActivity {
     class SearchBackground extends AsyncTask<Void, Void, String> {
         String json_url;
         String cName = searchClass.getText().toString();
-        String sName = LoginActivity.facebookName.getText().toString();
 
         @Override
         protected void onPreExecute() {
@@ -135,8 +134,7 @@ public class NavigationActivity extends AppCompatActivity {
                 httpURLConnection.setDoInput(true);
                 OutputStream outputStream = httpURLConnection.getOutputStream();
                 BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(outputStream,"UTF-8"));
-                String sData = URLEncoder.encode("cName", "UTF-8")+ "=" + URLEncoder.encode(cName, "UTF-8") + "&" +
-                        URLEncoder.encode("sName", "UTF-8") + "=" + URLEncoder.encode(sName, "UTF-8");
+                String sData = URLEncoder.encode("cName", "UTF-8")+ "=" + URLEncoder.encode(cName, "UTF-8");
                 bufferedWriter.write(sData);
                 bufferedWriter.flush();
                 bufferedWriter.close();
@@ -180,7 +178,9 @@ public class NavigationActivity extends AppCompatActivity {
                     JSONObject JO = jsonArray.getJSONObject(count);
                     name = JO.getString("sName");
                     email = JO.getString("sEmail");
-                    Student student = new Student(name, email);
+                    className = JO.getString("cName");
+                    classNum = JO.getString("cID");
+                    Student student = new Student(name, email, className, classNum);
                     listView.setAdapter(studentAdapter);
                     studentAdapter.add(student);
                     count++;

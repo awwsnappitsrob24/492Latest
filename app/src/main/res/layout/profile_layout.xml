@@ -35,14 +35,6 @@
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Create Group"
-        android:id="@+id/createGroup"
-        android:layout_above="@+id/sendInvite"
-        android:layout_alignStart="@+id/viewProfile" />
-
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
         android:text="Send Group Invite"
         android:id="@+id/sendInvite"
         android:layout_above="@+id/sendMessage"
@@ -63,5 +55,6 @@
         android:id="@+id/viewProfile"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true" />
+
 
 </RelativeLayout>

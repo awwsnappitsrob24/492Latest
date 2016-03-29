@@ -44,7 +44,7 @@ public class ProfileActivity extends AppCompatActivity {
     private CallbackManager callbackManager;
 
     TextView name, email;
-    Button createGroup, addToGroup, sendMessage, viewProfile;
+    Button addToGroup, sendMessage, viewProfile;
     private ProfilePictureView profilePictureView;
     URL img_url;
     Bitmap bmp;
@@ -61,13 +61,6 @@ public class ProfileActivity extends AppCompatActivity {
         profilePictureView = (ProfilePictureView)findViewById(R.id.profilePic);
         name = (TextView)findViewById(R.id.nameText);
         email = (TextView)findViewById(R.id.emailText);
-        createGroup = (Button)findViewById(R.id.createGroup);
-        createGroup.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-            }
-        });
 
         addToGroup = (Button)findViewById(R.id.sendInvite);
         addToGroup.setOnClickListener(new View.OnClickListener() {
