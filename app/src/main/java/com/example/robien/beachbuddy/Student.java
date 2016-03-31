@@ -5,13 +5,14 @@ package com.example.robien.beachbuddy;
  */
 public class Student {
 
-    private String name, email, assocClassName, assocClassNum;
+    private String name, email, assocClassName, assocClassNum, instructor;
 
-    public Student(String name, String email, String assocClassName, String assocClassNum) {
+    public Student(String name, String email, String assocClassName, String assocClassNum, String instructor) {
         this.setName(name);
         this.setEmail(email);
         this.setClassName(assocClassName);
         this.setClassNum(assocClassNum);
+        this.setInstructor(instructor);
     }
 
     public String getName() {
@@ -44,5 +45,13 @@ public class Student {
 
     public void setClassNum(String assocClassNum) {
         this.assocClassNum = assocClassNum;
+    }
+
+    public String getInstructor() {
+        return instructor;
+    }
+
+    public void setInstructor(String instructor) {
+        this.instructor = instructor;
     }
 }

@@ -11,9 +11,11 @@ import android.view.Menu;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -49,14 +51,15 @@ public class NavigationActivity extends AppCompatActivity {
 
     Button search;
     EditText searchClass;
-    String JSON_String, idString;
+    String JSON_String, idString, selectedPreference;
     JSONObject jsonObject;
     JSONArray jsonArray;
     StudentAdapter studentAdapter;
     ListView listView;
     Student selectedStudent;
+    Spinner searchPref;
 
-    static String name, email, studentName, studentEmail, className, classNum;
+    static String name, email, studentName, studentEmail, className, classNum, instructor;
 
 
     public static String ID; // to save the facebook ID (will need in another class)
@@ -70,13 +73,55 @@ public class NavigationActivity extends AppCompatActivity {
         searchClass = (EditText)findViewById(R.id.classSearch);
         listView = (ListView)findViewById(R.id.listView);
 
+        searchPref = (Spinner)findViewById(R.id.searchPreference);
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
+                R.array.search_preferences, android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        searchPref.setAdapter(adapter);
+        searchPref.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                // An item was selected. You can retrieve the selected item using
+                // parent.getItemAtPosition(pos)
+                Toast.makeText(getApplicationContext(), parent.getItemAtPosition(position).toString(),
+                        Toast.LENGTH_LONG).show();
+
+                selectedPreference = parent.getItemAtPosition(position).toString();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+
         search.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
                 imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
 
-                getJSON(v);
+                Toast.makeText(getApplicationContext(), selectedPreference, Toast.LENGTH_LONG).show();
+
+                if(selectedPreference.equalsIgnoreCase("Course Name"))
+                    getJSONByNameOnly(v);
+                else if(selectedPreference.equalsIgnoreCase("Course Number"))
+                    Toast.makeText(getApplicationContext(), selectedPreference, Toast.LENGTH_LONG).show();
+                    //getJSONByNumberOnly(v);
+                else if(selectedPreference.equalsIgnoreCase("Instructor"))
+                    Toast.makeText(getApplicationContext(), selectedPreference, Toast.LENGTH_LONG).show();
+                    //getJSONByInstructorOnly(v);
+                else if(selectedPreference.equalsIgnoreCase("Both Course Name and Course Number"))
+                    Toast.makeText(getApplicationContext(), selectedPreference, Toast.LENGTH_LONG).show();
+                    //getJSONByNameAndNumber(v);
+                else if(selectedPreference.equalsIgnoreCase("Both Course Name and Instructor"))
+                    Toast.makeText(getApplicationContext(), selectedPreference, Toast.LENGTH_LONG).show();
+                    //getJSONByNameAndInstructor(v);
+                else if(selectedPreference.equalsIgnoreCase("All of the Above"))
+                    Toast.makeText(getApplicationContext(), selectedPreference, Toast.LENGTH_LONG).show();
+                    //getJSONByAllOfTheAbove(v);
+
+
 
             }
         });
@@ -86,26 +131,18 @@ public class NavigationActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
                 //Get name from the row (position) clicked and pass it to search for the facebook profile
-                selectedStudent = (Student)studentAdapter.getItem(position);
+                selectedStudent = (Student) studentAdapter.getItem(position);
 
                 //Extract name from row
                 studentName = selectedStudent.getName();
                 studentEmail = selectedStudent.getEmail();
 
-                //Get the person's profile (the right way)
-                //Intent profileIntent = new Intent(getApplicationContext(), ProfileActivity.class);
-                //startActivity(profileIntent);
-
-                // Get the user's ID to go to their profile
-                //String method = "fetchFbId";
-                //BackgroundTask bt = new BackgroundTask(getApplicationContext());
-                //bt.execute(method, studentName);
-                //Toast.makeText(getApplicationContext(), studentName, Toast.LENGTH_LONG).show();
-
                 getFbId(view);
 
             }
         });
+
+
     }
 
 
@@ -115,13 +152,13 @@ public class NavigationActivity extends AppCompatActivity {
     }
 
 
-    class SearchBackground extends AsyncTask<Void, Void, String> {
+    class SearchByNameOnlyBackground extends AsyncTask<Void, Void, String> {
         String json_url;
         String cName = searchClass.getText().toString();
 
         @Override
         protected void onPreExecute() {
-            json_url = "http://52.25.144.228/search.php";
+            json_url = "http://52.25.144.228/searchbynameonly.php";
         }
 
         @Override
@@ -180,7 +217,8 @@ public class NavigationActivity extends AppCompatActivity {
                     email = JO.getString("sEmail");
                     className = JO.getString("cName");
                     classNum = JO.getString("cID");
-                    Student student = new Student(name, email, className, classNum);
+                    instructor = JO.getString("cInstructor");
+                    Student student = new Student(name, email, className, classNum, instructor);
                     listView.setAdapter(studentAdapter);
                     studentAdapter.add(student);
                     count++;
@@ -192,9 +230,9 @@ public class NavigationActivity extends AppCompatActivity {
         }
     }
 
-    public void getJSON(View v) {
+    public void getJSONByNameOnly(View v) {
 
-        new SearchBackground().execute();
+        new SearchByNameOnlyBackground().execute();
     }
 
     class FetchFbId extends AsyncTask<Void, Void, String> {
@@ -256,11 +294,6 @@ public class NavigationActivity extends AppCompatActivity {
                 JSONObject JO = jsonArray.getJSONObject(count);
                 ID = JO.getString("sFacebookID"); // fetch the ID from database
 
-                //go to user's profile
-                //String URI = "https://www.facebook.com/" + ID;
-                //Intent profileIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(URI));
-                //startActivity(profileIntent);
-
                 Intent profileIntent = new Intent(getApplicationContext(), ProfileActivity.class);
                 startActivity(profileIntent);
 
@@ -276,5 +309,7 @@ public class NavigationActivity extends AppCompatActivity {
     public void getFbId(View v) {
         new FetchFbId().execute();
     }
+
+    // More search background tasks here....
 }
 
