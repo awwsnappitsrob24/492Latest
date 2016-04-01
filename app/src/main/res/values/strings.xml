@@ -14,4 +14,7 @@
         <item>All of the Above</item>
     </string-array>
 
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
+
 </resources>

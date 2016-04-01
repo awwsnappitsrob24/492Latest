@@ -23,7 +23,7 @@ android:layout_height="match_parent">
 <EditText
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:ems="6"
+    android:ems="8"
     android:id="@+id/classSearch"
     android:layout_alignBottom="@+id/search"
     android:layout_alignParentStart="true"
