@@ -1,12 +1,17 @@
 package com.example.robien.beachbuddy;
 
+import android.content.DialogInterface;
+import android.content.res.Resources;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.view.ContextThemeWrapper;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -14,6 +19,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -51,15 +57,16 @@ public class NavigationActivity extends AppCompatActivity {
 
     Button search;
     EditText searchClass;
-    String JSON_String, idString, selectedPreference;
+    String JSON_String, idString, json_url, selectedPreference;
     JSONObject jsonObject;
     JSONArray jsonArray;
     StudentAdapter studentAdapter;
     ListView listView;
     Student selectedStudent;
     Spinner searchPref;
+    String[] split;
 
-    static String name, email, studentName, studentEmail, className, classNum, instructor;
+    static String name, email, studentName, studentEmail, className, classNum, instructor, c_Name, c_ID;
 
 
     public static String ID; // to save the facebook ID (will need in another class)
@@ -68,7 +75,7 @@ public class NavigationActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.nav_header_main);
-        //studentName = LoginActivity.facebookName.getText().toString(); // pass this to search fb user
+
         search = (Button)findViewById(R.id.search);
         searchClass = (EditText)findViewById(R.id.classSearch);
         listView = (ListView)findViewById(R.id.listView);
@@ -81,12 +88,43 @@ public class NavigationActivity extends AppCompatActivity {
         searchPref.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                // An item was selected. You can retrieve the selected item using
-                // parent.getItemAtPosition(pos)
-                Toast.makeText(getApplicationContext(), parent.getItemAtPosition(position).toString(),
-                        Toast.LENGTH_LONG).show();
-
                 selectedPreference = parent.getItemAtPosition(position).toString();
+                /**
+                if(selectedPreference.equalsIgnoreCase("Both Course Name and Course Number")) {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(NavigationActivity.this);
+                    LayoutInflater inflater = NavigationActivity.this.getLayoutInflater();
+                    builder.setView(inflater.inflate(R.layout.dialog_twoinput_layout, null));
+                    builder.setTitle("Search by Course Name and ID");
+
+                    final EditText classNameInput = (EditText)
+
+
+                    // Add the buttons
+                    builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            // User clicked OK button
+                            //c_Name = classNameInput.getText().toString();
+                            //c_ID = classNumberInput.getText().toString();
+                            Toast.makeText(getApplicationContext(), c_Name + " " + c_ID, Toast.LENGTH_LONG).show();
+                        }
+                    });
+                    builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            // User cancelled the dialog
+                            dialog.dismiss();
+                        }
+                    });
+                    AlertDialog dialog = builder.create();
+                    dialog.show();
+                }
+                 **/
+
+                if(selectedPreference.equalsIgnoreCase("Both Course Name and Course Number"))
+                    searchClass.setHint("e.g. Math 210");
+                if(selectedPreference.equalsIgnoreCase("Both Course Name and Instructor"))
+                    searchClass.setHint("e.g. Math Jones");
+                if(selectedPreference.equalsIgnoreCase("All of the Above"))
+                    searchClass.setHint("e.g. Math 210 Jones");
             }
 
             @Override
@@ -101,19 +139,26 @@ public class NavigationActivity extends AppCompatActivity {
                 InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
                 imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
 
-                Toast.makeText(getApplicationContext(), selectedPreference, Toast.LENGTH_LONG).show();
-
                 if(selectedPreference.equalsIgnoreCase("Course Name"))
                     getJSONByNameOnly(v);
                 else if(selectedPreference.equalsIgnoreCase("Course Number"))
-                    Toast.makeText(getApplicationContext(), selectedPreference, Toast.LENGTH_LONG).show();
-                    //getJSONByNumberOnly(v);
+                    getJSONByNumberOnly(v);
                 else if(selectedPreference.equalsIgnoreCase("Instructor"))
-                    Toast.makeText(getApplicationContext(), selectedPreference, Toast.LENGTH_LONG).show();
-                    //getJSONByInstructorOnly(v);
-                else if(selectedPreference.equalsIgnoreCase("Both Course Name and Course Number"))
-                    Toast.makeText(getApplicationContext(), selectedPreference, Toast.LENGTH_LONG).show();
-                    //getJSONByNameAndNumber(v);
+                    getJSONByInstructorOnly(v);
+                else if(selectedPreference.equalsIgnoreCase("Both Course Name and Course Number")) {
+                    String inputStr = searchClass.getText().toString();
+                    split = inputStr.split("\\s+");
+                    int size = split.length;
+                    if(size < 2) {
+                        // alert dialog for too few fields entered
+                    }
+                    else if(size > 2) {
+                        // alert dialog for too few fields entered
+                    }
+                    else {
+                        getJSONByBothNameAndID(v);
+                    }
+                }
                 else if(selectedPreference.equalsIgnoreCase("Both Course Name and Instructor"))
                     Toast.makeText(getApplicationContext(), selectedPreference, Toast.LENGTH_LONG).show();
                     //getJSONByNameAndInstructor(v);
@@ -152,8 +197,10 @@ public class NavigationActivity extends AppCompatActivity {
     }
 
 
+    /**
+     * Searching students by class name ONLY
+     */
     class SearchByNameOnlyBackground extends AsyncTask<Void, Void, String> {
-        String json_url;
         String cName = searchClass.getText().toString();
 
         @Override
@@ -235,6 +282,272 @@ public class NavigationActivity extends AppCompatActivity {
         new SearchByNameOnlyBackground().execute();
     }
 
+    /**
+     * Searching students by class ID ONLY
+     */
+    class SearchByNumberOnlyBackground extends AsyncTask<Void, Void, String> {
+        String cID = searchClass.getText().toString();
+
+        @Override
+        protected void onPreExecute() {
+            json_url = "http://52.25.144.228/searchbynumberonly.php";
+        }
+
+        @Override
+        protected String doInBackground(Void... params) {
+            try {
+                URL url = new URL(json_url);
+                HttpURLConnection httpURLConnection = (HttpURLConnection)url.openConnection();
+                httpURLConnection.setRequestMethod("POST");
+                httpURLConnection.setDoOutput(true);
+                httpURLConnection.setDoInput(true);
+                OutputStream outputStream = httpURLConnection.getOutputStream();
+                BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(outputStream,"UTF-8"));
+                String sData = URLEncoder.encode("cID", "UTF-8")+ "=" + URLEncoder.encode(cID, "UTF-8");
+                bufferedWriter.write(sData);
+                bufferedWriter.flush();
+                bufferedWriter.close();
+                outputStream.close();
+                InputStream inputStream = httpURLConnection.getInputStream();
+                BufferedReader bufferedReader = new BufferedReader((new InputStreamReader(inputStream)));
+                StringBuilder stringBuilder = new StringBuilder();
+                while((JSON_String = bufferedReader.readLine()) != null) {
+                    stringBuilder.append(JSON_String + "\n");
+                }
+                bufferedReader.close();
+                inputStream.close();
+                httpURLConnection.disconnect();
+                return stringBuilder.toString().trim();
+            }
+            catch(MalformedURLException e) {
+                e.printStackTrace();
+            }
+            catch(IOException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onProgressUpdate(Void... values) {
+
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            JSON_String = result;
+            try {
+                studentAdapter = new StudentAdapter(getBaseContext(), R.layout.row_layout);
+                listView.setAdapter(null);
+                jsonObject = new JSONObject(JSON_String);
+                jsonArray = jsonObject.getJSONArray("students");
+                int count = 0;
+                ;
+                while(count < jsonArray.length()) {
+                    JSONObject JO = jsonArray.getJSONObject(count);
+                    name = JO.getString("sName");
+                    email = JO.getString("sEmail");
+                    className = JO.getString("cName");
+                    classNum = JO.getString("cID");
+                    instructor = JO.getString("cInstructor");
+                    Student student = new Student(name, email, className, classNum, instructor);
+                    listView.setAdapter(studentAdapter);
+                    studentAdapter.add(student);
+                    count++;
+                }
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public void getJSONByNumberOnly(View v) {
+
+        new SearchByNumberOnlyBackground().execute();
+    }
+
+
+    /**
+     * Searching students by instructor ONLY
+     */
+    class SearchByInstructorOnlyBackground extends AsyncTask<Void, Void, String> {
+        String cInstructor = searchClass.getText().toString();
+
+        @Override
+        protected void onPreExecute() {
+            json_url = "http://52.25.144.228/searchbyinstructoronly.php";
+        }
+
+        @Override
+        protected String doInBackground(Void... params) {
+            try {
+                URL url = new URL(json_url);
+                HttpURLConnection httpURLConnection = (HttpURLConnection)url.openConnection();
+                httpURLConnection.setRequestMethod("POST");
+                httpURLConnection.setDoOutput(true);
+                httpURLConnection.setDoInput(true);
+                OutputStream outputStream = httpURLConnection.getOutputStream();
+                BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(outputStream,"UTF-8"));
+                String sData = URLEncoder.encode("cInstructor", "UTF-8")+ "=" + URLEncoder.encode(cInstructor, "UTF-8");
+                bufferedWriter.write(sData);
+                bufferedWriter.flush();
+                bufferedWriter.close();
+                outputStream.close();
+                InputStream inputStream = httpURLConnection.getInputStream();
+                BufferedReader bufferedReader = new BufferedReader((new InputStreamReader(inputStream)));
+                StringBuilder stringBuilder = new StringBuilder();
+                while((JSON_String = bufferedReader.readLine()) != null) {
+                    stringBuilder.append(JSON_String + "\n");
+                }
+                bufferedReader.close();
+                inputStream.close();
+                httpURLConnection.disconnect();
+                return stringBuilder.toString().trim();
+            }
+            catch(MalformedURLException e) {
+                e.printStackTrace();
+            }
+            catch(IOException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onProgressUpdate(Void... values) {
+
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            JSON_String = result;
+            try {
+                studentAdapter = new StudentAdapter(getBaseContext(), R.layout.row_layout);
+                listView.setAdapter(null);
+                jsonObject = new JSONObject(JSON_String);
+                jsonArray = jsonObject.getJSONArray("students");
+                int count = 0;
+                ;
+                while(count < jsonArray.length()) {
+                    JSONObject JO = jsonArray.getJSONObject(count);
+                    name = JO.getString("sName");
+                    email = JO.getString("sEmail");
+                    className = JO.getString("cName");
+                    classNum = JO.getString("cID");
+                    instructor = JO.getString("cInstructor");
+                    Student student = new Student(name, email, className, classNum, instructor);
+                    listView.setAdapter(studentAdapter);
+                    studentAdapter.add(student);
+                    count++;
+                }
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public void getJSONByInstructorOnly(View v) {
+
+        new SearchByInstructorOnlyBackground().execute();
+    }
+
+
+    /**
+     * Searching students by BOTH course name and ID
+     */
+    class SearchByBothNameAndIDBackground extends AsyncTask<Void, Void, String> {
+        String cName = split[0];
+        String cID = split[1];
+
+        @Override
+        protected void onPreExecute() {
+            json_url = "http://52.25.144.228/searchbybothnameandid.php";
+        }
+
+        @Override
+        protected String doInBackground(Void... params) {
+            try {
+                URL url = new URL(json_url);
+                HttpURLConnection httpURLConnection = (HttpURLConnection)url.openConnection();
+                httpURLConnection.setRequestMethod("POST");
+                httpURLConnection.setDoOutput(true);
+                httpURLConnection.setDoInput(true);
+                OutputStream outputStream = httpURLConnection.getOutputStream();
+                BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(outputStream,"UTF-8"));
+                String sData = URLEncoder.encode("cName", "UTF-8")+ "=" + URLEncoder.encode(cName, "UTF-8")  + "&" +
+                        URLEncoder.encode("cID", "UTF-8")+ "=" + URLEncoder.encode(cID, "UTF-8");
+                bufferedWriter.write(sData);
+                bufferedWriter.flush();
+                bufferedWriter.close();
+                outputStream.close();
+                InputStream inputStream = httpURLConnection.getInputStream();
+                BufferedReader bufferedReader = new BufferedReader((new InputStreamReader(inputStream)));
+                StringBuilder stringBuilder = new StringBuilder();
+                while((JSON_String = bufferedReader.readLine()) != null) {
+                    stringBuilder.append(JSON_String + "\n");
+                }
+                bufferedReader.close();
+                inputStream.close();
+                httpURLConnection.disconnect();
+                return stringBuilder.toString().trim();
+            }
+            catch(MalformedURLException e) {
+                e.printStackTrace();
+            }
+            catch(IOException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onProgressUpdate(Void... values) {
+
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            JSON_String = result;
+            try {
+                studentAdapter = new StudentAdapter(getBaseContext(), R.layout.row_layout);
+                listView.setAdapter(null);
+                jsonObject = new JSONObject(JSON_String);
+                jsonArray = jsonObject.getJSONArray("students");
+                int count = 0;
+                ;
+                while(count < jsonArray.length()) {
+                    JSONObject JO = jsonArray.getJSONObject(count);
+                    name = JO.getString("sName");
+                    email = JO.getString("sEmail");
+                    className = JO.getString("cName");
+                    classNum = JO.getString("cID");
+                    instructor = JO.getString("cInstructor");
+                    Student student = new Student(name, email, className, classNum, instructor);
+                    listView.setAdapter(studentAdapter);
+                    studentAdapter.add(student);
+                    count++;
+                }
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public void getJSONByBothNameAndID(View v) {
+
+        new SearchByBothNameAndIDBackground().execute();
+    }
+
+
+
+
+
+
+
+
     class FetchFbId extends AsyncTask<Void, Void, String> {
         String fetchId_url;
         String studentName = selectedStudent.getName();
@@ -309,7 +622,5 @@ public class NavigationActivity extends AppCompatActivity {
     public void getFbId(View v) {
         new FetchFbId().execute();
     }
-
-    // More search background tasks here....
 }
 
