@@ -78,7 +78,7 @@ public class LoginActivity extends AppCompatActivity {
     private Button searchButt;
     private Button viewInvites;
     private String sName, sEmail, sFbId;
-    public static String responseString, className;
+    public static String inviteName, responseString;
 
     //check logged in state
     public boolean isLoggedIn() {
@@ -297,7 +297,7 @@ public class LoginActivity extends AppCompatActivity {
                 JSONArray jsonArray = jsonObject.getJSONArray("cName");
                 int count = 0;
                 JSONObject JO = jsonArray.getJSONObject(count);
-                className = JO.getString("cName");
+                inviteName = JO.getString("cName");
             } catch (JSONException e) {
                 e.printStackTrace();
             }

@@ -68,10 +68,7 @@ public class ProfileActivity extends AppCompatActivity {
             public void onClick(View v) {
                 String acc_reg_url = "http://52.25.144.228/submitinvite.php";
                 String sEmail = NavigationActivity.studentEmail;
-                //String cName = NavigationActivity.cName;
-                String cName = "math";
-                Log.v("sEmail", "sEmail is: " +  sEmail);
-                Log.v("cName", "cName is: " +  cName);
+                String cName = NavigationActivity.className;
                 try {
                     URL url = new URL(acc_reg_url);
                     HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
@@ -142,8 +139,6 @@ public class ProfileActivity extends AppCompatActivity {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-
     }
 
     @Override

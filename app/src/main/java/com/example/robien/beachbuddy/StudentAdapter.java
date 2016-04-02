@@ -43,7 +43,7 @@ public class StudentAdapter extends ArrayAdapter {
         StudentHolder studentHolder;
         if(row == null) {
             LayoutInflater layoutInflater = (LayoutInflater)this.getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            row = layoutInflater.inflate(R.layout.row_layout, parent, false);
+            row = layoutInflater.inflate(R.layout.student_row_layout, parent, false);
             studentHolder = new StudentHolder();
             studentHolder.tx_name = (TextView)row.findViewById(R.id.tx_name);
             studentHolder.tx_className = (TextView)row.findViewById(R.id.tx_cName);

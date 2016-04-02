@@ -10,10 +10,12 @@
         import android.view.MenuItem;
         import android.view.View;
         import android.widget.Button;
+        import android.widget.ListView;
         import android.widget.TextView;
 
         import com.facebook.Profile;
 
+        import org.json.JSONArray;
         import org.json.JSONException;
         import org.json.JSONObject;
 
@@ -34,21 +36,24 @@
  */
 public class InviteActivity extends AppCompatActivity {
 
-    TextView output;
-    Button accept, decline;
-    String cName, sEmail;
+    ListView inviteList;
+    InviteAdapter inviteAdapter;
+    JSONObject jsonObject;
+    JSONArray jsonArray;
+    String invite;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.invite_layout);
 
-        output = (TextView) findViewById(R.id.inviteText);
-        output.setText(LoginActivity.responseString);
+        //output = (TextView) findViewById(R.id.inviteText);
+        //output.setText(LoginActivity.responseString);
 
-        accept = (Button) findViewById(R.id.accept);
-        decline = (Button) findViewById(R.id.decline);
+        //accept = (Button) findViewById(R.id.accept);
+        //decline = (Button) findViewById(R.id.decline);
 
+        /**
         accept.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -62,11 +67,31 @@ public class InviteActivity extends AppCompatActivity {
 
             }
         });
+         **/
+        inviteList = (ListView)findViewById(R.id.inviteList);
+        inviteAdapter = new InviteAdapter(getApplicationContext(), R.layout.invite_row_layout);
+        inviteList.setAdapter(inviteAdapter);
+        try {
+            jsonObject = new JSONObject(LoginActivity.responseString);
+            jsonArray = jsonObject.getJSONArray("invites");
+            int count = 0;
+            while(count < jsonArray.length()) {
+                JSONObject JO = jsonArray.getJSONObject(count);
+                invite = JO.getString("cName");
+                Invite inviteObj = new Invite(invite);
+                inviteList.setAdapter(inviteAdapter);
+                inviteAdapter.add(inviteObj);
+                count++;
+            }
+        }
+        catch(JSONException e) {
+            e.printStackTrace();
+        }
     }
 
     class acceptInvite extends AsyncTask<Void, Void, String> {
         String accept_url;
-        String class_Name = LoginActivity.responseString;
+        String invite_Name = LoginActivity.inviteName;
         String studentEmail = LoginActivity.email.getText().toString();
         String response = "";
 
@@ -85,7 +110,7 @@ public class InviteActivity extends AppCompatActivity {
                 httpURLConnection.setDoInput(true);
                 OutputStream outputStream = httpURLConnection.getOutputStream();
                 BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(outputStream, "UTF-8"));
-                String sData = URLEncoder.encode("cName", "UTF-8") + "=" + URLEncoder.encode(class_Name, "UTF-8") + "&" +
+                String sData = URLEncoder.encode("cName", "UTF-8") + "=" + URLEncoder.encode(invite_Name, "UTF-8") + "&" +
                         URLEncoder.encode("sEmail", "UTF-8") + "=" + URLEncoder.encode(studentEmail, "UTF-8");
                 bufferedWriter.write(sData);
                 bufferedWriter.flush();
@@ -118,11 +143,6 @@ public class InviteActivity extends AppCompatActivity {
         protected void onPostExecute(String result) {
 
         }
-
-
-
-
-
     }
 
     public void acceptInvite(View v) {

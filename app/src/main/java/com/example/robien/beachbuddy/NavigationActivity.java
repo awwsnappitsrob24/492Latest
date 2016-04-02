@@ -1,17 +1,11 @@
 package com.example.robien.beachbuddy;
 
 import android.content.DialogInterface;
-import android.content.res.Resources;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v4.widget.DrawerLayout;
 import android.content.Intent;
-import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.view.ContextThemeWrapper;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -19,20 +13,8 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Spinner;
-import android.widget.TextView;
-import android.widget.Toast;
-
-import com.facebook.AccessToken;
-import com.facebook.GraphRequest;
-import com.facebook.GraphResponse;
-import com.facebook.HttpMethod;
-import com.facebook.Profile;
-import com.google.android.gms.appindexing.Action;
-import com.google.android.gms.appindexing.AppIndex;
-import com.google.android.gms.common.api.GoogleApiClient;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -299,7 +281,7 @@ public class NavigationActivity extends AppCompatActivity {
         protected void onPostExecute(String result) {
             JSON_String = result;
             try {
-                studentAdapter = new StudentAdapter(getBaseContext(), R.layout.row_layout);
+                studentAdapter = new StudentAdapter(getBaseContext(), R.layout.student_row_layout);
                 listView.setAdapter(null);
                 jsonObject = new JSONObject(JSON_String);
                 jsonArray = jsonObject.getJSONArray("students");
@@ -384,7 +366,7 @@ public class NavigationActivity extends AppCompatActivity {
         protected void onPostExecute(String result) {
             JSON_String = result;
             try {
-                studentAdapter = new StudentAdapter(getBaseContext(), R.layout.row_layout);
+                studentAdapter = new StudentAdapter(getBaseContext(), R.layout.student_row_layout);
                 listView.setAdapter(null);
                 jsonObject = new JSONObject(JSON_String);
                 jsonArray = jsonObject.getJSONArray("students");
@@ -470,7 +452,7 @@ public class NavigationActivity extends AppCompatActivity {
         protected void onPostExecute(String result) {
             JSON_String = result;
             try {
-                studentAdapter = new StudentAdapter(getBaseContext(), R.layout.row_layout);
+                studentAdapter = new StudentAdapter(getBaseContext(), R.layout.student_row_layout);
                 listView.setAdapter(null);
                 jsonObject = new JSONObject(JSON_String);
                 jsonArray = jsonObject.getJSONArray("students");
@@ -558,7 +540,7 @@ public class NavigationActivity extends AppCompatActivity {
         protected void onPostExecute(String result) {
             JSON_String = result;
             try {
-                studentAdapter = new StudentAdapter(getBaseContext(), R.layout.row_layout);
+                studentAdapter = new StudentAdapter(getBaseContext(), R.layout.student_row_layout);
                 listView.setAdapter(null);
                 jsonObject = new JSONObject(JSON_String);
                 jsonArray = jsonObject.getJSONArray("students");
@@ -646,7 +628,7 @@ public class NavigationActivity extends AppCompatActivity {
         protected void onPostExecute(String result) {
             JSON_String = result;
             try {
-                studentAdapter = new StudentAdapter(getBaseContext(), R.layout.row_layout);
+                studentAdapter = new StudentAdapter(getBaseContext(), R.layout.student_row_layout);
                 listView.setAdapter(null);
                 jsonObject = new JSONObject(JSON_String);
                 jsonArray = jsonObject.getJSONArray("students");
@@ -736,7 +718,7 @@ public class NavigationActivity extends AppCompatActivity {
         protected void onPostExecute(String result) {
             JSON_String = result;
             try {
-                studentAdapter = new StudentAdapter(getBaseContext(), R.layout.row_layout);
+                studentAdapter = new StudentAdapter(getBaseContext(), R.layout.student_row_layout);
                 listView.setAdapter(null);
                 jsonObject = new JSONObject(JSON_String);
                 jsonArray = jsonObject.getJSONArray("students");
