@@ -65,6 +65,7 @@ public class NavigationActivity extends AppCompatActivity {
     Student selectedStudent;
     Spinner searchPref;
     String[] split;
+    AlertDialog.Builder builder;
 
     static String name, email, studentName, studentEmail, className, classNum, instructor, c_Name, c_ID;
 
@@ -139,35 +140,84 @@ public class NavigationActivity extends AppCompatActivity {
                 InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
                 imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
 
-                if(selectedPreference.equalsIgnoreCase("Course Name"))
+                if(selectedPreference.equalsIgnoreCase("Course Name")) {
                     getJSONByNameOnly(v);
-                else if(selectedPreference.equalsIgnoreCase("Course Number"))
-                    getJSONByNumberOnly(v);
-                else if(selectedPreference.equalsIgnoreCase("Instructor"))
-                    getJSONByInstructorOnly(v);
-                else if(selectedPreference.equalsIgnoreCase("Both Course Name and Course Number")) {
-                    String inputStr = searchClass.getText().toString();
-                    split = inputStr.split("\\s+");
-                    int size = split.length;
-                    if(size < 2) {
-                        // alert dialog for too few fields entered
-                    }
-                    else if(size > 2) {
-                        // alert dialog for too few fields entered
-                    }
-                    else {
-                        getJSONByBothNameAndID(v);
-                    }
                 }
-                else if(selectedPreference.equalsIgnoreCase("Both Course Name and Instructor"))
-                    Toast.makeText(getApplicationContext(), selectedPreference, Toast.LENGTH_LONG).show();
-                    //getJSONByNameAndInstructor(v);
-                else if(selectedPreference.equalsIgnoreCase("All of the Above"))
-                    Toast.makeText(getApplicationContext(), selectedPreference, Toast.LENGTH_LONG).show();
-                    //getJSONByAllOfTheAbove(v);
+                else if(selectedPreference.equalsIgnoreCase("Course Number")) {
+                    getJSONByNumberOnly(v);
+                }
+                else if(selectedPreference.equalsIgnoreCase("Instructor")) {
+                    getJSONByInstructorOnly(v);
+                }
+                else if(selectedPreference.equalsIgnoreCase("Both Course Name and Course Number")) {
+                    String input = searchClass.getText().toString();
+                    split = input.split("\\s+");
+                    int size = split.length;
+                    if(size != 2) {
+                        builder = new AlertDialog.Builder(NavigationActivity.this);
+                        builder.setTitle("Invalid Input");
+                        if(size < 2)
+                            builder.setMessage("You put too few parameters. Try again.");
+                        else if(size > 2)
+                            builder.setMessage("You put too many parameters. Try again.");
+                        builder.setNeutralButton("Ok", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
 
+                            }
+                        });
+                        AlertDialog dialog = builder.create();
+                        dialog.show();
+                    }
+                    else
+                        getJSONByBothNameAndID(v);
+                }
+                else if(selectedPreference.equalsIgnoreCase("Both Course Name and Instructor")) {
+                    String input = searchClass.getText().toString();
+                    split = input.split("\\s+");
+                    int size = split.length;
+                    if(size != 2) {
+                        builder = new AlertDialog.Builder(NavigationActivity.this);
+                        builder.setTitle("Invalid Input");
+                        if(size < 2)
+                            builder.setMessage("You put too few parameters. Try again.");
+                        else if(size > 2)
+                            builder.setMessage("You put too many parameters. Try again.");
+                        builder.setNeutralButton("Ok", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
 
+                            }
+                        });
+                        AlertDialog dialog = builder.create();
+                        dialog.show();
+                    }
+                    else
+                        getJSONByBothNameAndInstructor(v);
+                }
+                else if(selectedPreference.equalsIgnoreCase("All of the Above")) {
+                    String input = searchClass.getText().toString();
+                    split = input.split("\\s+");
+                    int size = split.length;
+                    if(size != 3) {
+                        builder = new AlertDialog.Builder(NavigationActivity.this);
+                        builder.setTitle("Invalid Input");
+                        if(size < 3)
+                            builder.setMessage("You put too few parameters. Try again.");
+                        else if(size > 3)
+                            builder.setMessage("You put too many parameters. Try again.");
+                        builder.setNeutralButton("Ok", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
 
+                            }
+                        });
+                        AlertDialog dialog = builder.create();
+                        dialog.show();
+                    }
+                    else
+                        getJSONByAllOfTheAbove(v);
+                }
             }
         });
 
@@ -186,10 +236,7 @@ public class NavigationActivity extends AppCompatActivity {
 
             }
         });
-
-
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -542,7 +589,182 @@ public class NavigationActivity extends AppCompatActivity {
     }
 
 
+    /**
+     * Searching students by BOTH course name and Instructor
+     */
+    class SearchByBothNameAndInstructorBackground extends AsyncTask<Void, Void, String> {
+        String cName = split[0];
+        String cInstructor = split[1];
 
+        @Override
+        protected void onPreExecute() {
+            json_url = "http://52.25.144.228/searchbybothnameandinstructor.php";
+        }
+
+        @Override
+        protected String doInBackground(Void... params) {
+            try {
+                URL url = new URL(json_url);
+                HttpURLConnection httpURLConnection = (HttpURLConnection)url.openConnection();
+                httpURLConnection.setRequestMethod("POST");
+                httpURLConnection.setDoOutput(true);
+                httpURLConnection.setDoInput(true);
+                OutputStream outputStream = httpURLConnection.getOutputStream();
+                BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(outputStream,"UTF-8"));
+                String sData = URLEncoder.encode("cName", "UTF-8")+ "=" + URLEncoder.encode(cName, "UTF-8")  + "&" +
+                        URLEncoder.encode("cInstructor", "UTF-8")+ "=" + URLEncoder.encode(cInstructor, "UTF-8");
+                bufferedWriter.write(sData);
+                bufferedWriter.flush();
+                bufferedWriter.close();
+                outputStream.close();
+                InputStream inputStream = httpURLConnection.getInputStream();
+                BufferedReader bufferedReader = new BufferedReader((new InputStreamReader(inputStream)));
+                StringBuilder stringBuilder = new StringBuilder();
+                while((JSON_String = bufferedReader.readLine()) != null) {
+                    stringBuilder.append(JSON_String + "\n");
+                }
+                bufferedReader.close();
+                inputStream.close();
+                httpURLConnection.disconnect();
+                return stringBuilder.toString().trim();
+            }
+            catch(MalformedURLException e) {
+                e.printStackTrace();
+            }
+            catch(IOException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onProgressUpdate(Void... values) {
+
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            JSON_String = result;
+            try {
+                studentAdapter = new StudentAdapter(getBaseContext(), R.layout.row_layout);
+                listView.setAdapter(null);
+                jsonObject = new JSONObject(JSON_String);
+                jsonArray = jsonObject.getJSONArray("students");
+                int count = 0;
+                ;
+                while(count < jsonArray.length()) {
+                    JSONObject JO = jsonArray.getJSONObject(count);
+                    name = JO.getString("sName");
+                    email = JO.getString("sEmail");
+                    className = JO.getString("cName");
+                    classNum = JO.getString("cID");
+                    instructor = JO.getString("cInstructor");
+                    Student student = new Student(name, email, className, classNum, instructor);
+                    listView.setAdapter(studentAdapter);
+                    studentAdapter.add(student);
+                    count++;
+                }
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public void getJSONByBothNameAndInstructor(View v) {
+
+        new SearchByBothNameAndInstructorBackground().execute();
+    }
+
+
+    /**
+     * Searching students by all of the above (name, ID, instructor)
+     */
+    class SearchByAllOfTheAboveBackground extends AsyncTask<Void, Void, String> {
+        String cName = split[0];
+        String cID = split[1];
+        String cInstructor = split[2];
+
+        @Override
+        protected void onPreExecute() {
+            json_url = "http://52.25.144.228/searchbyalloftheabove.php";
+        }
+
+        @Override
+        protected String doInBackground(Void... params) {
+            try {
+                URL url = new URL(json_url);
+                HttpURLConnection httpURLConnection = (HttpURLConnection)url.openConnection();
+                httpURLConnection.setRequestMethod("POST");
+                httpURLConnection.setDoOutput(true);
+                httpURLConnection.setDoInput(true);
+                OutputStream outputStream = httpURLConnection.getOutputStream();
+                BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(outputStream,"UTF-8"));
+                String sData = URLEncoder.encode("cName", "UTF-8")+ "=" + URLEncoder.encode(cName, "UTF-8")  + "&" +
+                        URLEncoder.encode("cID", "UTF-8")+ "=" + URLEncoder.encode(cID, "UTF-8") + "&" +
+                        URLEncoder.encode("cInstructor", "UTF-8")+ "=" + URLEncoder.encode(cInstructor, "UTF-8");
+                bufferedWriter.write(sData);
+                bufferedWriter.flush();
+                bufferedWriter.close();
+                outputStream.close();
+                InputStream inputStream = httpURLConnection.getInputStream();
+                BufferedReader bufferedReader = new BufferedReader((new InputStreamReader(inputStream)));
+                StringBuilder stringBuilder = new StringBuilder();
+                while((JSON_String = bufferedReader.readLine()) != null) {
+                    stringBuilder.append(JSON_String + "\n");
+                }
+                bufferedReader.close();
+                inputStream.close();
+                httpURLConnection.disconnect();
+                return stringBuilder.toString().trim();
+            }
+            catch(MalformedURLException e) {
+                e.printStackTrace();
+            }
+            catch(IOException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onProgressUpdate(Void... values) {
+
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            JSON_String = result;
+            try {
+                studentAdapter = new StudentAdapter(getBaseContext(), R.layout.row_layout);
+                listView.setAdapter(null);
+                jsonObject = new JSONObject(JSON_String);
+                jsonArray = jsonObject.getJSONArray("students");
+                int count = 0;
+                ;
+                while(count < jsonArray.length()) {
+                    JSONObject JO = jsonArray.getJSONObject(count);
+                    name = JO.getString("sName");
+                    email = JO.getString("sEmail");
+                    className = JO.getString("cName");
+                    classNum = JO.getString("cID");
+                    instructor = JO.getString("cInstructor");
+                    Student student = new Student(name, email, className, classNum, instructor);
+                    listView.setAdapter(studentAdapter);
+                    studentAdapter.add(student);
+                    count++;
+                }
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public void getJSONByAllOfTheAbove(View v) {
+
+        new SearchByAllOfTheAboveBackground().execute();
+    }
 
 
 
