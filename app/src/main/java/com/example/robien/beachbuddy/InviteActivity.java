@@ -40,54 +40,96 @@ public class InviteActivity extends AppCompatActivity {
     InviteAdapter inviteAdapter;
     JSONObject jsonObject;
     JSONArray jsonArray;
-    String invite;
+    String response;
+
+    public static String invite,inviteName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.invite_layout);
 
-        //output = (TextView) findViewById(R.id.inviteText);
-        //output.setText(LoginActivity.responseString);
-
-        //accept = (Button) findViewById(R.id.accept);
-        //decline = (Button) findViewById(R.id.decline);
-
-        /**
-        accept.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                acceptInvite(v);
-            }
-        });
-
-        decline.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-            }
-        });
-         **/
         inviteList = (ListView)findViewById(R.id.inviteList);
-        inviteAdapter = new InviteAdapter(getApplicationContext(), R.layout.invite_row_layout);
-        inviteList.setAdapter(inviteAdapter);
-        try {
-            jsonObject = new JSONObject(LoginActivity.responseString);
-            jsonArray = jsonObject.getJSONArray("invites");
-            int count = 0;
-            while(count < jsonArray.length()) {
-                JSONObject JO = jsonArray.getJSONObject(count);
-                invite = JO.getString("cName");
-                Invite inviteObj = new Invite(invite);
-                inviteList.setAdapter(inviteAdapter);
-                inviteAdapter.add(inviteObj);
-                count++;
-            }
+
+        getFormattedInvites();
+    }
+
+
+    class GetFormattedInvites extends AsyncTask<Void, Void, String> {
+        String fetchInvite_url;
+        String studentEmail = LoginActivity.email.getText().toString();
+
+        @Override
+        protected void onPreExecute() {
+            fetchInvite_url = "http://52.25.144.228/invites.php";
         }
-        catch(JSONException e) {
-            e.printStackTrace();
+
+        @Override
+        protected String doInBackground(Void... params) {
+            try {
+                URL url = new URL(fetchInvite_url);
+                HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
+                httpURLConnection.setRequestMethod("POST");
+                httpURLConnection.setDoOutput(true);
+                httpURLConnection.setDoInput(true);
+                OutputStream outputStream = httpURLConnection.getOutputStream();
+                BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(outputStream, "UTF-8"));
+                String sData = URLEncoder.encode("studentEmail", "UTF-8") + "=" + URLEncoder.encode(studentEmail, "UTF-8");
+                bufferedWriter.write(sData);
+                bufferedWriter.flush();
+                bufferedWriter.close();
+                outputStream.close();
+                InputStream inputStream = httpURLConnection.getInputStream();
+                BufferedReader bufferedReader = new BufferedReader((new InputStreamReader(inputStream)));
+                StringBuilder stringBuilder = new StringBuilder();
+                while ((response = bufferedReader.readLine()) != null) {
+                    stringBuilder.append(response + "\n");
+                }
+                bufferedReader.close();
+                inputStream.close();
+                httpURLConnection.disconnect();
+                return stringBuilder.toString().trim();
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onProgressUpdate(Void... values) {
+
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            response = result;
+            try {
+                inviteAdapter = new InviteAdapter(getBaseContext(), R.layout.invite_row_layout);
+                inviteList.setAdapter(null);
+                jsonObject = new JSONObject(response);
+                jsonArray = jsonObject.getJSONArray("invites");
+                int count = 0;
+                while(count < jsonArray.length()) {
+                    JSONObject JO = jsonArray.getJSONObject(count);
+                    inviteName = JO.getString("cName");
+                    Invite myInvite = new Invite(inviteName);
+                    inviteList.setAdapter(inviteAdapter);
+                    inviteAdapter.add(myInvite);
+                    count++;
+                }
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
         }
     }
+
+    public void getFormattedInvites() {//view v?
+        new GetFormattedInvites().execute();
+    }
+
 
     class acceptInvite extends AsyncTask<Void, Void, String> {
         String accept_url;

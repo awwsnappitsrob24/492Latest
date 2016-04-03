@@ -77,8 +77,10 @@ public class LoginActivity extends AppCompatActivity {
     private Button classButt;
     private Button searchButt;
     private Button viewInvites;
-    private String sName, sEmail, sFbId;
+    private String sName, sEmail, sFbId, invite;
     public static String inviteName, responseString;
+
+    InviteAdapter inviteAdapter;
 
     //check logged in state
     public boolean isLoggedIn() {
@@ -178,7 +180,7 @@ public class LoginActivity extends AppCompatActivity {
         viewInvites.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                getInvites(v);
+                getJSONInvites(v);
             }
         });
 
@@ -240,7 +242,7 @@ public class LoginActivity extends AppCompatActivity {
         startActivity(goToMainPageIntent);
     }
 
-    class FetchInvites extends AsyncTask<Void, Void, String> {
+    class GetJSONInvites extends AsyncTask<Void, Void, String> {
         String fetchInvite_url;
         String studentEmail = email.getText().toString();
 
@@ -290,25 +292,13 @@ public class LoginActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(String result) {
             responseString = result;
-
-            JSONObject jsonObject = null;
-            try {
-                jsonObject = new JSONObject(responseString);
-                JSONArray jsonArray = jsonObject.getJSONArray("cName");
-                int count = 0;
-                JSONObject JO = jsonArray.getJSONObject(count);
-                inviteName = JO.getString("cName");
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-
             Intent viewInvitesIntent = new Intent(getApplicationContext(), InviteActivity.class);
             startActivity(viewInvitesIntent);
         }
     }
 
-    public void getInvites(View v) {
-        new FetchInvites().execute();
+    public void getJSONInvites(View v) {
+        new GetJSONInvites().execute();
     }
 
 
