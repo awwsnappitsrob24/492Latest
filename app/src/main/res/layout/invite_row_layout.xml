@@ -8,31 +8,36 @@
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:text="New Text"
-        android:id="@+id/tx_name"
+        android:id="@+id/tx_cName"
         android:gravity="center"
         android:layout_weight="0.43" />
 
+    <!--
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:text="New Text"
-        android:id="@+id/tx_cName"
+        android:id="@+id/tx_cID"
         android:gravity="center"
         android:layout_weight="0.12" />
+        WILL NEED THIS LATER TO DISPLAY CLASS ID!!-->
 
-    <CheckBox
+    <RadioButton
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Accept"
-        android:id="@+id/acceptCheckBox"
-        android:layout_weight="0.21" />
+        android:textColor="#000000"
+        android:id="@+id/acceptRadio"
+        android:layout_weight="0.26"
+        android:checked="false" />
 
-    <CheckBox
-        android:layout_width="wrap_content"
+    <RadioButton
+        android:layout_width="91dp"
         android:layout_height="wrap_content"
         android:text="Decline"
-        android:id="@+id/declineCheckBox"
-        android:layout_weight="0.21" />
+        android:textColor="#000000"
+        android:id="@+id/declineRadio"
+        android:checked="false" />
 
 
 </LinearLayout>
