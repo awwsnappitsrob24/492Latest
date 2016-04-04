@@ -5,10 +5,11 @@ package com.example.robien.beachbuddy;
  */
 public class Invite {
 
-    private String classType;
+    private String classType, classID;
 
-    public Invite(String classType) {
+    public Invite(String classType, String classID) {
         this.setClassType(classType);
+        this.setClassID(classID);
     }
 
     public String getClassInvite() {
@@ -17,5 +18,13 @@ public class Invite {
 
     public void setClassType(String classType) {
         this.classType = classType;
+    }
+
+    public String getClassID() {
+        return classID;
+    }
+
+    public void setClassID(String classID) {
+        this.classID = classID;
     }
 }

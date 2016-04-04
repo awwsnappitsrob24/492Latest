@@ -44,10 +44,12 @@ public class ProfileActivity extends AppCompatActivity {
     private CallbackManager callbackManager;
 
     TextView name, email;
-    Button addToGroup, sendMessage, viewProfile;
+    Button addToGroup, sendMessage, viewGroupMembers;
     private ProfilePictureView profilePictureView;
     URL img_url;
     Bitmap bmp;
+
+    public static String emailInvite, inviteClassID;
 
 
     @Override
@@ -67,8 +69,9 @@ public class ProfileActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 String acc_reg_url = "http://52.25.144.228/submitinvite.php";
-                String sEmail = NavigationActivity.studentEmail;
-                String cName = NavigationActivity.className;
+                emailInvite = NavigationActivity.studentEmail;
+                String cName = NavigationActivity.studentClassName;
+                inviteClassID = NavigationActivity.studentClassID;
                 try {
                     URL url = new URL(acc_reg_url);
                     HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
@@ -77,7 +80,8 @@ public class ProfileActivity extends AppCompatActivity {
                     OutputStream OS = httpURLConnection.getOutputStream();
                     BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(OS, "UTF-8"));
                     String data = URLEncoder.encode("cName", "UTF-8") + "=" + URLEncoder.encode(cName, "UTF-8") + "&" +
-                            URLEncoder.encode("sEmail", "UTF-8") + "=" + URLEncoder.encode(sEmail, "UTF-8");
+                            URLEncoder.encode("sEmail", "UTF-8") + "=" + URLEncoder.encode(emailInvite, "UTF-8") + "&" +
+                            URLEncoder.encode("cID", "UTF-8") + "=" + URLEncoder.encode(inviteClassID, "UTF-8");
                     bufferedWriter.write(data);
                     bufferedWriter.flush();
                     bufferedWriter.close();
@@ -110,8 +114,8 @@ public class ProfileActivity extends AppCompatActivity {
             }
         });
 
-        viewProfile = (Button)findViewById(R.id.viewProfile);
-        viewProfile.setOnClickListener(new View.OnClickListener() {
+        viewGroupMembers = (Button)findViewById(R.id.viewGroupMembers);
+        viewGroupMembers.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 

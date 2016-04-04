@@ -49,7 +49,8 @@ public class NavigationActivity extends AppCompatActivity {
     String[] split;
     AlertDialog.Builder builder;
 
-    static String name, email, studentName, studentEmail, className, classNum, instructor, c_Name, c_ID;
+    static String name, email, studentName, studentEmail, studentClassID, studentClassName,
+            className, classNum, instructor, c_Name, c_ID;
 
 
     public static String ID; // to save the facebook ID (will need in another class)
@@ -213,6 +214,8 @@ public class NavigationActivity extends AppCompatActivity {
                 //Extract name from row
                 studentName = selectedStudent.getName();
                 studentEmail = selectedStudent.getEmail();
+                studentClassID = selectedStudent.getClassNum();
+                studentClassName = selectedStudent.getClassName();
 
                 getFbId(view);
 
