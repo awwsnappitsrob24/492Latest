@@ -42,7 +42,7 @@ public class InviteActivity extends AppCompatActivity {
     JSONArray jsonArray;
     String response;
 
-    public static String invite,inviteName;
+    public static String inviteID,inviteName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -114,7 +114,8 @@ public class InviteActivity extends AppCompatActivity {
                 while(count < jsonArray.length()) {
                     JSONObject JO = jsonArray.getJSONObject(count);
                     inviteName = JO.getString("cName");
-                    Invite myInvite = new Invite(inviteName);
+                    inviteID = JO.getString("cID");
+                    Invite myInvite = new Invite(inviteName, inviteID);
                     inviteList.setAdapter(inviteAdapter);
                     inviteAdapter.add(myInvite);
                     count++;

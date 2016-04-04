@@ -77,8 +77,8 @@ public class LoginActivity extends AppCompatActivity {
     private Button classButt;
     private Button searchButt;
     private Button viewInvites;
-    private String sName, sEmail, sFbId, invite;
-    public static String inviteName, responseString;
+    private String sName, sFbId;
+    public static String inviteName, inviteID, responseString, sEmail;
 
     InviteAdapter inviteAdapter;
 
@@ -292,6 +292,23 @@ public class LoginActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(String result) {
             responseString = result;
+            try {
+                JSONObject jsonObject = new JSONObject(responseString);
+                JSONArray jsonArray = jsonObject.getJSONArray("invites");
+                int count = 0;
+                ;
+                while(count < jsonArray.length()) {
+                    JSONObject JO = jsonArray.getJSONObject(count);
+                    inviteName = JO.getString("cName");
+                    inviteID = JO.getString("cID");
+                    count++;
+                }
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+            //Toast.makeText(getApplicationContext(), responseString, Toast.LENGTH_LONG).show();
             Intent viewInvitesIntent = new Intent(getApplicationContext(), InviteActivity.class);
             startActivity(viewInvitesIntent);
         }

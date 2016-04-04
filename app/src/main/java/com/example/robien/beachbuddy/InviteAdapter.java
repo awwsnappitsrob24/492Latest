@@ -2,6 +2,7 @@ package com.example.robien.beachbuddy;
 
 import android.content.Context;
 import android.os.AsyncTask;
+import android.os.StrictMode;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,6 +10,7 @@ import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.RadioButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -30,6 +32,7 @@ import java.util.List;
 public class InviteAdapter extends ArrayAdapter {
 
     List list = new ArrayList();
+    String idFromInvite, classFromInvite;
 
     public InviteAdapter(Context context, int resource) {
         super(context, resource);
@@ -51,7 +54,7 @@ public class InviteAdapter extends ArrayAdapter {
     }
 
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
+    public View getView(final int position, View convertView, ViewGroup parent) {
         View row;
         row = convertView;
         InviteHolder inviteHolder;
@@ -60,6 +63,7 @@ public class InviteAdapter extends ArrayAdapter {
             row = layoutInflater.inflate(R.layout.invite_row_layout, parent, false);
             inviteHolder = new InviteHolder();
             inviteHolder.tx_inviteName = (TextView)row.findViewById(R.id.tx_cName);
+            inviteHolder.tx_inviteID = (TextView)row.findViewById(R.id.tx_cID);
             row.setTag(inviteHolder);
         }
         else
@@ -67,13 +71,29 @@ public class InviteAdapter extends ArrayAdapter {
 
         Invite mInvite = (Invite)this.getItem(position);
         inviteHolder.tx_inviteName.setText(mInvite.getClassInvite());
+        inviteHolder.tx_inviteID.setText(mInvite.getClassID());
+
+
 
         RadioButton accept = (RadioButton)row.findViewById(R.id.acceptRadio);
         accept.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                acceptInvite(v);
+
+                Invite selectedInvite = (Invite)list.get(position);
+                idFromInvite = selectedInvite.getClassID();
+                classFromInvite = selectedInvite.getClassInvite();
+
+                list.remove(position);
                 notifyDataSetChanged();
+
+                // accept invite
+                acceptInvite(v);
+
+                // not realy declining, just serves the purpose of deleting the invite from the DB
+                declineInvite();
+
+
             }
         });
 
@@ -83,26 +103,94 @@ public class InviteAdapter extends ArrayAdapter {
             @Override
             public void onClick(View v) {
 
+                Invite selectedInvite = (Invite)list.get(position);
+                idFromInvite = selectedInvite.getClassID();
+                classFromInvite = selectedInvite.getClassInvite();
+
+                list.remove(position);
+                notifyDataSetChanged();
+
+                if (android.os.Build.VERSION.SDK_INT > 9) {
+                    StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+                    StrictMode.setThreadPolicy(policy);
+                }
+
+                declineInvite();
+
             }
         });
-
-        if(accept.isChecked())
-            decline.setChecked(false);
-        if(decline.isChecked())
-            accept.setChecked(false);
 
         return row;
     }
 
     static class InviteHolder {
-        TextView tx_inviteName;
+        TextView tx_inviteName, tx_inviteID;
+    }
+
+
+    class declineInvite extends AsyncTask<Void, Void, String> {
+        String declineurl;
+        String emailInInvite = LoginActivity.sEmail;
+        String inviteName = classFromInvite;
+        String inviteID = idFromInvite;
+
+        @Override
+        protected void onPreExecute() {
+            declineurl = "http://52.25.144.228/deleteinvite.php";
+        }
+
+        @Override
+        protected String doInBackground(Void... params) {
+            try {
+                URL url = new URL(declineurl);
+                HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
+                httpURLConnection.setRequestMethod("POST");
+                httpURLConnection.setDoOutput(true);
+                OutputStream OS = httpURLConnection.getOutputStream();
+                BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(OS, "UTF-8"));
+                String data = URLEncoder.encode("sEmail", "UTF-8")+ "=" + URLEncoder.encode(emailInInvite, "UTF-8" )  + "&" +
+                        URLEncoder.encode("cName", "UTF-8")+ "=" + URLEncoder.encode(inviteName, "UTF-8"  ) + "&" +
+                        URLEncoder.encode("cID", "UTF-8")+ "=" + URLEncoder.encode(inviteID, "UTF-8"  );
+                bufferedWriter.write(data);
+                bufferedWriter.flush();
+                bufferedWriter.close();
+                OS.close();
+                InputStream IS = httpURLConnection.getInputStream();
+                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(IS,"iso-8859-1"));
+                String response = "";
+                String line  = "";
+                while ((line = bufferedReader.readLine())!=null)
+                {
+                    response+= line;
+                }
+                bufferedReader.close();
+                IS.close();
+                httpURLConnection.disconnect();
+
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+
+        }
+    }
+
+    public void declineInvite() {
+        new declineInvite().execute();
     }
 
 
     class acceptInvite extends AsyncTask<Void, Void, String> {
         String accept_url;
-        String invite_Name = InviteActivity.inviteName;
-        String studentEmail = LoginActivity.email.getText().toString();
+        String emailInInvite = LoginActivity.sEmail;
+        String inviteName = classFromInvite;
+        String inviteID = idFromInvite;
         String response = "";
 
         @Override
@@ -120,8 +208,9 @@ public class InviteAdapter extends ArrayAdapter {
                 httpURLConnection.setDoInput(true);
                 OutputStream outputStream = httpURLConnection.getOutputStream();
                 BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(outputStream, "UTF-8"));
-                String sData = URLEncoder.encode("cName", "UTF-8") + "=" + URLEncoder.encode(invite_Name, "UTF-8") + "&" +
-                        URLEncoder.encode("sEmail", "UTF-8") + "=" + URLEncoder.encode(studentEmail, "UTF-8");
+                String sData = URLEncoder.encode("sEmail", "UTF-8") + "=" + URLEncoder.encode(emailInInvite, "UTF-8") + "&" +
+                        URLEncoder.encode("cName", "UTF-8") + "=" + URLEncoder.encode(inviteName, "UTF-8") + "&" +
+                        URLEncoder.encode("cID", "UTF-8") + "=" + URLEncoder.encode(inviteID, "UTF-8");
                 bufferedWriter.write(sData);
                 bufferedWriter.flush();
                 bufferedWriter.close();
@@ -151,7 +240,7 @@ public class InviteAdapter extends ArrayAdapter {
 
         @Override
         protected void onPostExecute(String result) {
-
+            Toast.makeText(getContext(), classFromInvite + " " + idFromInvite, Toast.LENGTH_LONG).show();
         }
     }
 
