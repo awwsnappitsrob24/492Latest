@@ -1,5 +1,6 @@
 package com.example.robien.beachbuddy;
 
+import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -65,52 +66,74 @@ public class LoginActivity extends AppCompatActivity {
 
     private CallbackManager callbackManager;
 
-    private TextView info;
+    static TextView info;
     private LoginButton loginButton;
 
     public static TextView email;
-    private TextView gender;
+    //private TextView gender;
     public static TextView facebookName;
-    private LinearLayout infoLayout;
-    private LinearLayout relLayout;
-    private ProfilePictureView profilePictureView;
-    private Button classButt;
-    private Button searchButt;
-    private Button viewInvites;
+    private static LinearLayout infoLayout;
+    private static LinearLayout relLayout;
+    static ProfilePictureView profilePictureView;
+    private static Button classButt;
+    private static Button searchButt;
+    private static Button viewInvites;
     private String sName, sFbId;
     public static String inviteName, inviteID, responseString, sEmail;
 
-    InviteAdapter inviteAdapter;
+    static boolean isLoggedIn;
+    static JSONObject logger;
 
+    InviteAdapter inviteAdapter;
+/*
     //check logged in state
     public boolean isLoggedIn() {
         AccessToken accessToken = AccessToken.getCurrentAccessToken();
         return accessToken != null;
     }
-
+*/
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         FacebookSdk.sdkInitialize(getApplicationContext());
         callbackManager = CallbackManager.Factory.create();
-
-        //Check if user is currently logged in
-        if (AccessToken.getCurrentAccessToken() != null && com.facebook.Profile.getCurrentProfile() != null){
-            //status is logged in
-            loginButton.setVisibility(View.VISIBLE);
-            loginButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-//log out
-                    LoginManager.getInstance().logOut();
-                    isLoggedIn();
-                }
-            });
-        }
-
+        Log.v("login", "login is: " +  isLoggedIn);
+        Log.v("object","login is:" + logger);
 
         setContentView(R.layout.login_layout);
+        if(isLoggedIn == true){
+            loginButton = (LoginButton) findViewById(R.id.login_button);
+
+            email = (TextView)findViewById(R.id.email);
+            facebookName = (TextView)findViewById(R.id.name);
+
+
+            infoLayout = (LinearLayout)findViewById(R.id.layout_info);
+            relLayout = (LinearLayout)findViewById(R.id.layout_info1);
+            profilePictureView = (ProfilePictureView)findViewById(R.id.image);
+            classButt = (Button)findViewById(R.id.classButton);
+            searchButt = (Button)findViewById(R.id.searchButton);
+            viewInvites = (Button)findViewById(R.id.viewInvites);
+
+            setProfileToView(logger);
+
+        }
+        else if(isLoggedIn == false){
+            setContentView(R.layout.login_layout);
+            email = (TextView)findViewById(R.id.email);
+            facebookName = (TextView)findViewById(R.id.name);
+
+
+            infoLayout = (LinearLayout)findViewById(R.id.layout_info);
+            relLayout = (LinearLayout)findViewById(R.id.layout_info1);
+            profilePictureView = (ProfilePictureView)findViewById(R.id.image);
+            classButt = (Button)findViewById(R.id.classButton);
+            searchButt = (Button)findViewById(R.id.searchButton);
+            viewInvites = (Button)findViewById(R.id.viewInvites);
+        }
+
         info = (TextView) findViewById(R.id.info);
         try {
             PackageInfo info = getPackageManager().getPackageInfo(
@@ -128,9 +151,10 @@ public class LoginActivity extends AppCompatActivity {
         }
         loginButton = (LoginButton) findViewById(R.id.login_button);
 
+/*
         email = (TextView)findViewById(R.id.email);
         facebookName = (TextView)findViewById(R.id.name);
-        gender = (TextView)findViewById(R.id.gender);
+
 
         infoLayout = (LinearLayout)findViewById(R.id.layout_info);
         relLayout = (LinearLayout)findViewById(R.id.layout_info1);
@@ -139,27 +163,26 @@ public class LoginActivity extends AppCompatActivity {
         searchButt = (Button)findViewById(R.id.searchButton);
         viewInvites = (Button)findViewById(R.id.viewInvites);
         //loginButton.setReadPermissions(Arrays.asList("public_profile"));
+
+ */
         loginButton.setReadPermissions(Arrays.asList("public_profile, email, user_birthday"));
         loginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
             @Override
             public void onSuccess(final LoginResult loginResult) {
-
-                GraphRequest request = GraphRequest.newMeRequest(
-                        loginResult.getAccessToken(),
+                isLoggedIn = true;
+                GraphRequest request = GraphRequest.newMeRequest(loginResult.getAccessToken(),
                         new GraphRequest.GraphJSONObjectCallback() {
-
-
                             @Override
                             public void onCompleted(JSONObject object, GraphResponse response) {
                                 Log.v("Main", response.toString());
+                                logger = object;
                                 setProfileToView(object);
-
                                 registerAccount(object);
 
                             }
                         });
                 Bundle parameters = new Bundle();
-                parameters.putString("fields", "id,name,email,gender, birthday");
+                parameters.putString("fields", "id,name,email, birthday");
                 request.setParameters(parameters);
                 request.executeAsync();
             }
@@ -172,6 +195,22 @@ public class LoginActivity extends AppCompatActivity {
             public void onError(FacebookException e) {
 
                 info.setText("Login attempt failed.");
+            }
+
+        });
+
+
+        loginButton.setOnClickListener(new View.OnClickListener(){
+
+            @Override
+        public void onClick(View v){
+                if(isLoggedIn == true){
+                isLoggedIn = false;
+                Log.v("login", "login is 2: " +  isLoggedIn);
+                LoginManager.getInstance().logOut();
+                startActivity(new Intent(LoginActivity.this, LoginActivity.class));
+                }
+
             }
         });
 
@@ -192,14 +231,11 @@ public class LoginActivity extends AppCompatActivity {
     }
 
 
+
     private void setProfileToView(JSONObject jsonObject) {
         try {
             email.setText(jsonObject.getString("email"));
-
-
             sEmail = email.getText().toString();
-
-            gender.setText(jsonObject.getString("gender"));
             facebookName.setText(jsonObject.getString("name"));
 
             profilePictureView.setPresetSize(ProfilePictureView.NORMAL);
