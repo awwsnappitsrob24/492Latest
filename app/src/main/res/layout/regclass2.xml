@@ -1,5 +1,110 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent" android:layout_height="match_parent">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/loginscreenpic"
+        android:id="@+id/layout_info1"
+        android:visibility="gone"
+        android:orientation="horizontal">
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:id="@+id/layout_info"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:visibility="visible"
+        android:layout_alignParentStart="true"
+        android:layout_marginBottom="0dp"
+        android:layout_alignParentBottom="false">
+
+        <com.facebook.login.widget.ProfilePictureView
+            android:id="@+id/image"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:layout_gravity="center"
+            android:layout_marginTop="50dp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/name"
+            android:text="NAME"
+            android:textStyle="bold"
+            android:layout_below="@+id/layout_info"
+            android:layout_alignParentStart="true"
+            android:layout_marginTop="58dp"
+            android:textSize="20dp"
+            android:gravity="center"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/email"
+            android:text="NAME"
+            android:textStyle="bold"
+            android:textSize="20dp"
+            android:gravity="center"
+            android:layout_below="@+id/name"
+            android:layout_centerHorizontal="true" />
+
+    </LinearLayout>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Add Classes"
+        android:id="@+id/classButton"
+        android:visibility="visible"
+        android:onClick="classReg"
+        android:layout_marginRight="10dp"
+        android:layout_below="@+id/login_button"
+        android:layout_alignEnd="@+id/searchButton"
+        android:layout_alignParentStart="true" />
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Search Classes"
+        android:id="@+id/searchButton"
+        android:visibility="visible"
+        android:onClick="classNav"
+        android:layout_below="@+id/classButton"
+        android:layout_toEndOf="@+id/layout_info1" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="View Invites"
+        android:id="@+id/viewInvites"
+        android:visibility="visible"
+        android:layout_below="@+id/searchButton"
+        android:layout_alignEnd="@+id/searchButton"
+        android:layout_alignStart="@+id/searchButton" />
+
+    <com.facebook.login.widget.LoginButton
+        android:id="@+id/login_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:layout_marginTop="313dp"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="View Messages"
+        android:id="@+id/button"
+        android:layout_alignTop="@+id/viewInvites"
+        android:layout_alignParentEnd="true"
+        android:layout_marginRight="20dp" />
 
 </RelativeLayout>

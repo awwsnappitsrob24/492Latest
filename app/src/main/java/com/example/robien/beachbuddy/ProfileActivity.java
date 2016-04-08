@@ -1,5 +1,6 @@
 package com.example.robien.beachbuddy;
 
+import android.content.Intent;
 import android.content.pm.PackageInstaller;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -43,7 +44,7 @@ public class ProfileActivity extends AppCompatActivity {
 
     private CallbackManager callbackManager;
 
-    TextView name, email;
+    static TextView name, email;
     Button addToGroup, sendMessage, viewGroupMembers;
     private ProfilePictureView profilePictureView;
     URL img_url;
@@ -110,7 +111,7 @@ public class ProfileActivity extends AppCompatActivity {
         sendMessage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                startActivity(new Intent(ProfileActivity.this, messenger.class));
             }
         });
 

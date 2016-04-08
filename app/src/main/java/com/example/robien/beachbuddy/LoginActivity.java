@@ -78,6 +78,7 @@ public class LoginActivity extends AppCompatActivity {
     private static Button classButt;
     private static Button searchButt;
     private static Button viewInvites;
+    private static Button viewMessages;
     private String sName, sFbId;
     public static String inviteName, inviteID, responseString, sEmail;
 
@@ -116,7 +117,7 @@ public class LoginActivity extends AppCompatActivity {
             classButt = (Button)findViewById(R.id.classButton);
             searchButt = (Button)findViewById(R.id.searchButton);
             viewInvites = (Button)findViewById(R.id.viewInvites);
-
+            viewMessages = (Button)findViewById(R.id.viewMsg);
             setProfileToView(logger);
 
         }
@@ -132,6 +133,7 @@ public class LoginActivity extends AppCompatActivity {
             classButt = (Button)findViewById(R.id.classButton);
             searchButt = (Button)findViewById(R.id.searchButton);
             viewInvites = (Button)findViewById(R.id.viewInvites);
+            viewMessages = (Button)findViewById(R.id.viewMsg);
         }
 
         info = (TextView) findViewById(R.id.info);
@@ -245,6 +247,7 @@ public class LoginActivity extends AppCompatActivity {
             classButt.setVisibility(View.VISIBLE);
             searchButt.setVisibility(View.VISIBLE);
             viewInvites.setVisibility(View.VISIBLE);
+            viewMessages.setVisibility(View.VISIBLE);
         } catch (JSONException e) {
             e.printStackTrace();
         }}
@@ -275,6 +278,11 @@ public class LoginActivity extends AppCompatActivity {
 
     public void classNav(View view) {
         Intent goToMainPageIntent = new Intent(this,NavigationActivity.class);
+        startActivity(goToMainPageIntent);
+    }
+
+    public void getMsgs(View view){
+        Intent goToMainPageIntent = new Intent(this,MessageView.class);
         startActivity(goToMainPageIntent);
     }
 
