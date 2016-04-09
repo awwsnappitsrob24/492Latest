@@ -1,17 +1,17 @@
 package com.example.robien.beachbuddy;
 
-import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
+
+import com.example.robien.beachbuddy.Group;
+import com.example.robien.beachbuddy.GroupAdapter;
+import com.example.robien.beachbuddy.LoginActivity;
+import com.example.robien.beachbuddy.R;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -29,61 +29,51 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 
-/**
- * Created by DarthMerl on 4/7/2016.
- */
-public class GroupsView extends AppCompatActivity {
+public class GroupMembersActivity extends AppCompatActivity {
 
-    ListView groupList;
-    GroupAdapter groupAdapter;
+    ListView memberList;
+    TextView memberText;
+    MemberAdapter memberAdapter;
     JSONObject jsonObject;
     JSONArray jsonArray;
-    String response;
+    String response, sEmail;
 
-    public static Group selectedGroup;
-    public static String groupName, groupID;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.groups_layout);
+        setContentView(R.layout.group_members_layout);
 
-        groupList = (ListView)findViewById(R.id.groupList);
+        memberText = (TextView)findViewById(R.id.memberText);
+        memberText.setText("Group Members in " + GroupsView.groupName + " " + GroupsView.groupID);
 
-        getGroups();
+        memberList = (ListView)findViewById(R.id.memberList);
 
-        groupList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                selectedGroup = (Group)groupAdapter.getItem(position);
-
-                Intent membersIntent = new Intent(GroupsView.this, GroupMembersActivity.class);
-                startActivity(membersIntent);
-            }
-        });
+        getGroupMembers();
     }
 
-    class GetGroups extends AsyncTask<Void, Void, String> {
-        String fetchgroups_url;
-        String studentEmail = LoginActivity.sEmail;
-
+    class GetGroupMembers extends AsyncTask<Void, Void, String> {
+        String fetchgroupmembers_url;
+        String groupName = GroupsView.selectedGroup.getGroupType();
+        String groupID = GroupsView.selectedGroup.getGroupID();
 
         @Override
         protected void onPreExecute() {
-            fetchgroups_url = "http://52.25.144.228/getgroups.php";
+            fetchgroupmembers_url = "http://52.25.144.228/getgroupmembers.php";
         }
 
         @Override
         protected String doInBackground(Void... params) {
             try {
-                URL url = new URL(fetchgroups_url);
+                URL url = new URL(fetchgroupmembers_url);
                 HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
                 httpURLConnection.setRequestMethod("POST");
                 httpURLConnection.setDoOutput(true);
                 httpURLConnection.setDoInput(true);
                 OutputStream outputStream = httpURLConnection.getOutputStream();
                 BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(outputStream, "UTF-8"));
-                String sData = URLEncoder.encode("sEmail", "UTF-8") + "=" + URLEncoder.encode(studentEmail, "UTF-8");
+                String sData = URLEncoder.encode("groupName", "UTF-8") + "=" + URLEncoder.encode(groupName, "UTF-8") + "&" +
+                        URLEncoder.encode("groupID", "UTF-8") + "=" + URLEncoder.encode(groupID, "UTF-8");
                 bufferedWriter.write(sData);
                 bufferedWriter.flush();
                 bufferedWriter.close();
@@ -116,17 +106,15 @@ public class GroupsView extends AppCompatActivity {
         protected void onPostExecute(String result) {
             response = result;
             try {
-                groupAdapter = new GroupAdapter(getBaseContext(), R.layout.group_row_layout);
+                memberAdapter = new MemberAdapter(getBaseContext(), R.layout.member_row_layout);
                 jsonObject = new JSONObject(response);
-                jsonArray = jsonObject.getJSONArray("groups");
+                jsonArray = jsonObject.getJSONArray("members");
                 int count = 0;
                 while (count < jsonArray.length()) {
                     JSONObject JO = jsonArray.getJSONObject(count);
-                    groupName = JO.getString("cName");
-                    groupID = JO.getString("cID");
-                    Group myGroup = new Group(groupName, groupID);
-                    groupList.setAdapter(groupAdapter);
-                    groupAdapter.add(myGroup);
+                    sEmail = JO.getString("sEmail");
+                    memberList.setAdapter(memberAdapter);
+                    memberAdapter.add(sEmail);
                     count++;
                 }
 
@@ -136,7 +124,7 @@ public class GroupsView extends AppCompatActivity {
         }
     }
 
-    public void getGroups() {//view v?
-        new GetGroups().execute();
+    public void getGroupMembers() {//view v?
+        new GetGroupMembers().execute();
     }
 }
