@@ -79,6 +79,7 @@ public class LoginActivity extends AppCompatActivity {
     private static Button searchButt;
     private static Button viewInvites;
     private static Button viewMessages;
+    private static Button viewGroups;
     private String sName, sFbId;
     public static String inviteName, inviteID, responseString, sEmail;
 
@@ -118,6 +119,7 @@ public class LoginActivity extends AppCompatActivity {
             searchButt = (Button)findViewById(R.id.searchButton);
             viewInvites = (Button)findViewById(R.id.viewInvites);
             viewMessages = (Button)findViewById(R.id.viewMsg);
+            viewGroups = (Button)findViewById(R.id.viewGroups);
             setProfileToView(logger);
 
         }
@@ -134,6 +136,7 @@ public class LoginActivity extends AppCompatActivity {
             searchButt = (Button)findViewById(R.id.searchButton);
             viewInvites = (Button)findViewById(R.id.viewInvites);
             viewMessages = (Button)findViewById(R.id.viewMsg);
+            viewGroups = (Button)findViewById(R.id.viewGroups);
         }
 
         info = (TextView) findViewById(R.id.info);
@@ -248,6 +251,7 @@ public class LoginActivity extends AppCompatActivity {
             searchButt.setVisibility(View.VISIBLE);
             viewInvites.setVisibility(View.VISIBLE);
             viewMessages.setVisibility(View.VISIBLE);
+            viewGroups.setVisibility(View.VISIBLE);
         } catch (JSONException e) {
             e.printStackTrace();
         }}
@@ -284,6 +288,11 @@ public class LoginActivity extends AppCompatActivity {
     public void getMsgs(View view){
         Intent goToMainPageIntent = new Intent(this,MessageView.class);
         startActivity(goToMainPageIntent);
+    }
+
+    public void getGroups(View view){
+        Intent goToGroupsIntent = new Intent(this, GroupsView.class);
+        startActivity(goToGroupsIntent);
     }
 
     class GetJSONInvites extends AsyncTask<Void, Void, String> {
@@ -361,7 +370,4 @@ public class LoginActivity extends AppCompatActivity {
     public void getJSONInvites(View v) {
         new GetJSONInvites().execute();
     }
-
-
-
 }

@@ -88,11 +88,6 @@ public class MessageView extends AppCompatActivity {
                     }
                 });
 
-
-
-
-
-
             }
         });
     }
@@ -153,7 +148,7 @@ public class MessageView extends AppCompatActivity {
             response = result;
             try {
                 msgAdapter = new MsgAdapter(getBaseContext(), R.layout.message_view);
-                listView2.setAdapter(null);
+                //listView2.setAdapter(null);
                 jsonObject = new JSONObject(response);
                 jsonArray = jsonObject.getJSONArray("messenger");
                 int count = 0;

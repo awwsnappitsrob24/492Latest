@@ -1,5 +1,3 @@
-
-
 package com.example.robien.beachbuddy;
 
 import android.content.Intent;
