@@ -13,6 +13,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
@@ -49,6 +50,7 @@ public class ProfileActivity extends AppCompatActivity {
     private ProfilePictureView profilePictureView;
     URL img_url;
     Bitmap bmp;
+    String previousActivity;
 
     public static String emailInvite, inviteClassID;
 
@@ -57,6 +59,9 @@ public class ProfileActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.profile_layout);
+
+        Intent intent = getIntent();
+        String activity = intent.getStringExtra("activity");
 
         FacebookSdk.sdkInitialize(getApplicationContext());
         callbackManager = CallbackManager.Factory.create();
@@ -128,17 +133,21 @@ public class ProfileActivity extends AppCompatActivity {
             StrictMode.setThreadPolicy(policy);
         }
 
-
+        // figure this out forwhenever activity is MEMBER
         try {
             img_url = new URL("https://graph.facebook.com/" + NavigationActivity.ID + "/picture");
             bmp = BitmapFactory.decodeStream(img_url.openConnection().getInputStream());
             profilePictureView.setDefaultProfilePicture(bmp);
             profilePictureView.setPresetSize(ProfilePictureView.NORMAL);
             profilePictureView.setVisibility(View.VISIBLE);
-
-            name.setText(NavigationActivity.studentName);
-            email.setText(NavigationActivity.studentEmail);
-
+            if(activity.equals("Member")) {
+                name.setText(GroupMembersActivity.selectedName);
+                email.setText(GroupMembersActivity.studentEmail); // wrong...
+            }
+            if(activity.equals("Navigation")) {
+                name.setText(NavigationActivity.studentName);
+                email.setText(NavigationActivity.studentEmail);
+            }
         } catch (MalformedURLException e) {
             e.printStackTrace();
         } catch (IOException e) {

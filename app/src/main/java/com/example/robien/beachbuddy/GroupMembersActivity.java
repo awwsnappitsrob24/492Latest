@@ -1,5 +1,6 @@
 package com.example.robien.beachbuddy;
 
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -7,6 +8,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.robien.beachbuddy.Group;
 import com.example.robien.beachbuddy.GroupAdapter;
@@ -28,6 +30,8 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.List;
 
 public class GroupMembersActivity extends AppCompatActivity {
 
@@ -36,7 +40,10 @@ public class GroupMembersActivity extends AppCompatActivity {
     MemberAdapter memberAdapter;
     JSONObject jsonObject;
     JSONArray jsonArray;
-    String response, sEmail;
+    String response;
+    ArrayList<String> emailList = new ArrayList<String>();
+
+    public static String sEmail, sName, studentEmail, selectedName;
 
 
     @Override
@@ -45,14 +52,28 @@ public class GroupMembersActivity extends AppCompatActivity {
         setContentView(R.layout.group_members_layout);
 
         memberText = (TextView)findViewById(R.id.memberText);
-        memberText.setText("Group Members in " + GroupsView.groupName + " " + GroupsView.groupID);
+        memberText.setText("Group Members in " + GroupsView.selectedGroup.getGroupType() + " " +
+                GroupsView.selectedGroup.getGroupID());
 
         memberList = (ListView)findViewById(R.id.memberList);
 
-        getGroupMembers();
+        getGroupMemberEmail();
+
+        memberList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                // Get student's name
+                selectedName = memberAdapter.getItem(position).toString();
+
+                // Go to profile page
+                Intent intent = new Intent(GroupMembersActivity.this, ProfileActivity.class);
+                intent.putExtra("activity", "Member");
+                startActivity(intent);
+            }
+        });
     }
 
-    class GetGroupMembers extends AsyncTask<Void, Void, String> {
+    class GetGroupMemberEmail extends AsyncTask<Void, Void, String> {
         String fetchgroupmembers_url;
         String groupName = GroupsView.selectedGroup.getGroupType();
         String groupID = GroupsView.selectedGroup.getGroupID();
@@ -113,18 +134,91 @@ public class GroupMembersActivity extends AppCompatActivity {
                 while (count < jsonArray.length()) {
                     JSONObject JO = jsonArray.getJSONObject(count);
                     sEmail = JO.getString("sEmail");
-                    memberList.setAdapter(memberAdapter);
-                    memberAdapter.add(sEmail);
+                    emailList.add(sEmail); // populate email array list
+                    studentEmail = emailList.get(count);
                     count++;
+                    getGroupMemberName();
                 }
-
             } catch (JSONException e) {
                 e.printStackTrace();
             }
         }
     }
 
-    public void getGroupMembers() {//view v?
-        new GetGroupMembers().execute();
+    public void getGroupMemberEmail() {
+        new GetGroupMemberEmail().execute();
+    }
+
+
+    class GetGroupMemberName extends AsyncTask<Void, Void, String> {
+        String fetchgroupmembername_url;
+        String email = GroupMembersActivity.studentEmail;
+
+        @Override
+        protected void onPreExecute() {
+            fetchgroupmembername_url = "http://52.25.144.228/fetchmembername.php";
+        }
+
+        @Override
+        protected String doInBackground(Void... params) {
+            try {
+                URL url = new URL(fetchgroupmembername_url);
+                HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
+                httpURLConnection.setRequestMethod("POST");
+                httpURLConnection.setDoOutput(true);
+                httpURLConnection.setDoInput(true);
+                OutputStream outputStream = httpURLConnection.getOutputStream();
+                BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(outputStream, "UTF-8"));
+                String sData = URLEncoder.encode("sEmail", "UTF-8") + "=" + URLEncoder.encode(email, "UTF-8");
+                bufferedWriter.write(sData);
+                bufferedWriter.flush();
+                bufferedWriter.close();
+                outputStream.close();
+                InputStream inputStream = httpURLConnection.getInputStream();
+                BufferedReader bufferedReader = new BufferedReader((new InputStreamReader(inputStream)));
+                StringBuilder stringBuilder = new StringBuilder();
+                while ((response = bufferedReader.readLine()) != null) {
+                    stringBuilder.append(response + "\n");
+                }
+
+                bufferedReader.close();
+                inputStream.close();
+                httpURLConnection.disconnect();
+                return stringBuilder.toString().trim();
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onProgressUpdate(Void... values) {
+
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            response = result;
+            try {
+                jsonObject = new JSONObject(response);
+                jsonArray = jsonObject.getJSONArray("student");
+                int count = 0;
+                while (count < jsonArray.length()) {
+                    JSONObject JO = jsonArray.getJSONObject(count);
+                    sName = JO.getString("sName");
+                    memberList.setAdapter(memberAdapter);
+                    memberAdapter.add(sName);
+                    count++;
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public void getGroupMemberName() {
+        new GetGroupMemberName().execute();
     }
 }
