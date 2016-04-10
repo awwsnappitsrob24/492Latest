@@ -15,6 +15,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -814,8 +815,10 @@ public class NavigationActivity extends AppCompatActivity {
                 JSONObject JO = jsonArray.getJSONObject(count);
                 ID = JO.getString("sFacebookID"); // fetch the ID from database
 
-                Intent profileIntent = new Intent(getApplicationContext(), ProfileActivity.class);
-                startActivity(profileIntent);
+                // Activity tracker
+                Intent intent = new Intent(NavigationActivity.this, ProfileActivity.class);
+                intent.putExtra("activity", "Navigation");
+                startActivity(intent);
 
             } catch (JSONException e) {
                 e.printStackTrace();
