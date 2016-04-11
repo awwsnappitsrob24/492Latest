@@ -252,6 +252,10 @@ public class LoginActivity extends AppCompatActivity {
             viewInvites.setVisibility(View.VISIBLE);
             viewMessages.setVisibility(View.VISIBLE);
             viewGroups.setVisibility(View.VISIBLE);
+
+            //check messages in background
+            getMessageNotification();
+
         } catch (JSONException e) {
             e.printStackTrace();
         }}
@@ -370,4 +374,67 @@ public class LoginActivity extends AppCompatActivity {
     public void getJSONInvites(View v) {
         new GetJSONInvites().execute();
     }
+
+    class GetMessageNotification extends AsyncTask<Void, Void, String> {
+        String fetchMsg;
+        String studentEmail = LoginActivity.email.getText().toString();
+
+        @Override
+        protected void onPreExecute() {
+            fetchMsg = "http://52.25.144.228/msgCheck.php";
+        }
+
+        @Override
+        protected String doInBackground(Void... params) {
+            try {
+                URL url = new URL(fetchMsg);
+                HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
+                httpURLConnection.setRequestMethod("POST");
+                httpURLConnection.setDoOutput(true);
+                httpURLConnection.setDoInput(true);
+                OutputStream outputStream = httpURLConnection.getOutputStream();
+                BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(outputStream, "UTF-8"));
+                String sData = URLEncoder.encode("studentEmail", "UTF-8") + "=" + URLEncoder.encode(studentEmail, "UTF-8");
+                bufferedWriter.write(sData);
+                bufferedWriter.flush();
+                bufferedWriter.close();
+                outputStream.close();
+                InputStream inputStream = httpURLConnection.getInputStream();
+                BufferedReader bufferedReader = new BufferedReader((new InputStreamReader(inputStream)));
+                StringBuilder stringBuilder = new StringBuilder();
+                while ((responseString = bufferedReader.readLine()) != null) {
+                    stringBuilder.append(responseString + "\n");
+                }
+                Log.v("response", "response is:" + responseString);
+                bufferedReader.close();
+                inputStream.close();
+                httpURLConnection.disconnect();
+                return stringBuilder.toString().trim();
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onProgressUpdate(Void... values) {
+
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            responseString = result;
+            Log.v("responseString", "responseString is:" + responseString);
+            if (responseString.equals("You have unread messages in your inbox")){
+            Toast.makeText(getApplicationContext(), responseString, Toast.LENGTH_LONG).show();
+        }
+        }
+    }
+
+    public void getMessageNotification(){
+        new GetMessageNotification().execute();}
+
+
 }

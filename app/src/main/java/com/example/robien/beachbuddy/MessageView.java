@@ -11,6 +11,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -56,7 +57,7 @@ public class MessageView extends AppCompatActivity {
 
         //inviteList = (ListView) findViewById(R.id.inviteList);
 
-        getFormattedInvites();
+        getFormattedMessages();
 
         listView2.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -78,8 +79,22 @@ public class MessageView extends AppCompatActivity {
                 msgBox = (EditText)findViewById(R.id.msgbody);
                 msgBox.setText(msg);
                 msgBox.setKeyListener(null);
+                updateView();
                 hideSend = (Button)findViewById(R.id.sender);
-                hideSend.setVisibility(View.INVISIBLE);
+                hideSend.setText("Delete");
+                //hideSend.setVisibility(View.INVISIBLE);
+                hideSend.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        //do something
+                        msgDelete();
+
+                    }
+                });
+
+
+
+                //Return to Profile
                 profileRtn = (Button)findViewById(R.id.profilertn);
                 profileRtn.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -94,21 +109,22 @@ public class MessageView extends AppCompatActivity {
     }
 
 
-    class GetFormattedInvites extends AsyncTask<Void, Void, String> {
-        String fetchInvite_url;
+    class GetFormattedMessages extends AsyncTask<Void, Void, String> {
+        String fetchMsg;
         String recipient = LoginActivity.email.getText().toString();
 
 
         @Override
         protected void onPreExecute() {
-            fetchInvite_url = "http://52.25.144.228/messageRetrieve.php";
+            fetchMsg = "http://52.25.144.228/messageRetrieve.php";
         }
 
         @Override
         protected String doInBackground(Void... params) {
             Log.v("recipient", "recipient is: " +  recipient);
+
             try {
-                URL url = new URL(fetchInvite_url);
+                URL url = new URL(fetchMsg);
                 HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
                 httpURLConnection.setRequestMethod("POST");
                 httpURLConnection.setDoOutput(true);
@@ -169,12 +185,141 @@ public class MessageView extends AppCompatActivity {
             } catch (JSONException e) {
                 e.printStackTrace();
             }
+
         }
 
 
     }
 
-    public void getFormattedInvites() {//view v?
-        new GetFormattedInvites().execute();
+    public void getFormattedMessages() {//view v?
+        new GetFormattedMessages().execute();
+    }
+
+    class MsgDelete extends AsyncTask<Void, Void, String> {
+        String deleteMsg;
+        String recipient = LoginActivity.email.getText().toString();
+
+
+        @Override
+        protected void onPreExecute() {
+            deleteMsg = "http://52.25.144.228/deletemsg.php";
+        }
+
+        @Override
+        protected String doInBackground(Void... params) {
+            Log.v("recipient", "recipient is: " +  recipient);
+            try {
+                URL url = new URL(deleteMsg);
+                HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
+                httpURLConnection.setRequestMethod("POST");
+                httpURLConnection.setDoOutput(true);
+                httpURLConnection.setDoInput(true);
+                OutputStream outputStream = httpURLConnection.getOutputStream();
+                BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(outputStream, "UTF-8"));
+                String sData = URLEncoder.encode("msgID", "UTF-8") + "=" + URLEncoder.encode(msgID, "UTF-8") + "&" +
+                        URLEncoder.encode("messageEmail", "UTF-8") + "=" + URLEncoder.encode(messageEmail, "UTF-8");
+                bufferedWriter.write(sData);
+                bufferedWriter.flush();
+                bufferedWriter.close();
+                outputStream.close();
+                InputStream inputStream = httpURLConnection.getInputStream();
+                BufferedReader bufferedReader = new BufferedReader((new InputStreamReader(inputStream)));
+                StringBuilder stringBuilder = new StringBuilder();
+                while ((response = bufferedReader.readLine()) != null) {
+                    stringBuilder.append(response + "\n");
+                }
+
+                bufferedReader.close();
+                inputStream.close();
+                httpURLConnection.disconnect();
+                return stringBuilder.toString().trim();
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onProgressUpdate(Void... values) {
+
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            response = result;
+            Toast.makeText(getApplicationContext(), "Message Deleted!", Toast.LENGTH_LONG).show();
+            startActivity(new Intent(MessageView.this, LoginActivity.class));
+
+        }
+
+
+    }
+
+    public void msgDelete() {new MsgDelete().execute();
+    }
+
+    class UpdateView extends AsyncTask<Void, Void, String> {
+        String setView;
+        String recipient = LoginActivity.email.getText().toString();
+
+
+        @Override
+        protected void onPreExecute() {
+            setView = "http://52.25.144.228/updateView.php";
+        }
+
+        @Override
+        protected String doInBackground(Void... params) {
+            Log.v("recipient", "recipient is: " +  recipient);
+            try {
+                URL url = new URL(setView);
+                HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
+                httpURLConnection.setRequestMethod("POST");
+                httpURLConnection.setDoOutput(true);
+                httpURLConnection.setDoInput(true);
+                OutputStream outputStream = httpURLConnection.getOutputStream();
+                BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(outputStream, "UTF-8"));
+                String sData = URLEncoder.encode("recipient", "UTF-8") + "=" + URLEncoder.encode(recipient, "UTF-8")+ "&" +
+                        URLEncoder.encode("msgID", "UTF-8") + "=" + URLEncoder.encode(msgID, "UTF-8");
+                bufferedWriter.write(sData);
+                bufferedWriter.flush();
+                bufferedWriter.close();
+                outputStream.close();
+                InputStream inputStream = httpURLConnection.getInputStream();
+                BufferedReader bufferedReader = new BufferedReader((new InputStreamReader(inputStream)));
+                StringBuilder stringBuilder = new StringBuilder();
+                while ((response = bufferedReader.readLine()) != null) {
+                    stringBuilder.append(response + "\n");
+                }
+
+                bufferedReader.close();
+                inputStream.close();
+                httpURLConnection.disconnect();
+                return stringBuilder.toString().trim();
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onProgressUpdate(Void... values) {
+
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+
+
+        }
+
+
+    }
+
+    public void updateView() {new UpdateView().execute();
     }
 }
