@@ -60,15 +60,14 @@ public class ProfileActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.profile_layout);
 
-        Intent intent = getIntent();
-        String activity = intent.getStringExtra("activity");
-
-        FacebookSdk.sdkInitialize(getApplicationContext());
-        callbackManager = CallbackManager.Factory.create();
-
         profilePictureView = (ProfilePictureView)findViewById(R.id.profilePic);
         name = (TextView)findViewById(R.id.nameText);
         email = (TextView)findViewById(R.id.emailText);
+        name.setText(NavigationActivity.studentName);
+        email.setText(NavigationActivity.studentEmail);
+
+        FacebookSdk.sdkInitialize(getApplicationContext());
+        callbackManager = CallbackManager.Factory.create();
 
         addToGroup = (Button)findViewById(R.id.sendInvite);
         addToGroup.setOnClickListener(new View.OnClickListener() {
@@ -133,21 +132,15 @@ public class ProfileActivity extends AppCompatActivity {
             StrictMode.setThreadPolicy(policy);
         }
 
-        // figure this out forwhenever activity is MEMBER
+        // figure this out for whenever activity is MEMBER
         try {
             img_url = new URL("https://graph.facebook.com/" + NavigationActivity.ID + "/picture");
             bmp = BitmapFactory.decodeStream(img_url.openConnection().getInputStream());
             profilePictureView.setDefaultProfilePicture(bmp);
             profilePictureView.setPresetSize(ProfilePictureView.NORMAL);
             profilePictureView.setVisibility(View.VISIBLE);
-            if(activity.equals("Member")) {
-                name.setText(GroupMembersActivity.selectedName);
-                email.setText(GroupMembersActivity.studentEmail); // wrong...
-            }
-            if(activity.equals("Navigation")) {
-                name.setText(NavigationActivity.studentName);
-                email.setText(NavigationActivity.studentEmail);
-            }
+
+
         } catch (MalformedURLException e) {
             e.printStackTrace();
         } catch (IOException e) {
