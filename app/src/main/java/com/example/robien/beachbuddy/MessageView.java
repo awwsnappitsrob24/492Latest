@@ -77,6 +77,7 @@ public class MessageView extends AppCompatActivity {
                 recipView.setText(sender);
                 msgBox = (EditText)findViewById(R.id.msgbody);
                 msgBox.setText(msg);
+                msgBox.setKeyListener(null);
                 hideSend = (Button)findViewById(R.id.sender);
                 hideSend.setVisibility(View.INVISIBLE);
                 profileRtn = (Button)findViewById(R.id.profilertn);

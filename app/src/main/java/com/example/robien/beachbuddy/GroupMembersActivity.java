@@ -3,9 +3,12 @@ package com.example.robien.beachbuddy;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.StrictMode;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -32,6 +35,7 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class GroupMembersActivity extends AppCompatActivity {
 
@@ -42,8 +46,11 @@ public class GroupMembersActivity extends AppCompatActivity {
     JSONArray jsonArray;
     String response;
     ArrayList<String> emailList = new ArrayList<String>();
+    EditText msgBox;
+    double msgRandom;
+    Random rand = new Random();
 
-    public static String sEmail, sName, studentEmail, selectedName;
+    public static String sEmail, sName, studentEmail, selectedName, convertedEmail;
 
 
     @Override
@@ -65,10 +72,84 @@ public class GroupMembersActivity extends AppCompatActivity {
                 // Get student's name
                 selectedName = memberAdapter.getItem(position).toString();
 
-                // Go to profile page
-                Intent intent = new Intent(GroupMembersActivity.this, ProfileActivity.class);
-                intent.putExtra("activity", "Member");
-                startActivity(intent);
+                // Convert email to name
+                getEmailFromName();
+
+                // go to send message page
+                setContentView(R.layout.messenger);
+
+                // initialize messaging stuff
+                TextView emailFrom = (TextView) findViewById(R.id.textView2);
+                emailFrom.setText("Send Message To: ");
+                TextView recipView = (TextView) findViewById(R.id.recipient);
+                recipView.setText(selectedName);
+                msgBox = (EditText) findViewById(R.id.msgbody);
+                Button sendButton = (Button) findViewById(R.id.sender);
+                msgRandom = rand.nextInt(1000) + 1;
+
+                sendButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        String msg = msgBox.getText().toString();
+                        String recipient = convertedEmail;
+                        String sender = LoginActivity.email.getText().toString();
+                        String msgID = Double.toString(msgRandom);
+
+
+                        String sendMsgURL = "http://52.25.144.228/sendmsg1.php";
+
+
+                        int SDK_INT = android.os.Build.VERSION.SDK_INT;
+                        if (SDK_INT > 8) {
+                            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder()
+                                    .permitAll().build();
+                            StrictMode.setThreadPolicy(policy);
+                        }
+
+                        try {
+                            URL url = new URL(sendMsgURL);
+                            HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
+                            httpURLConnection.setRequestMethod("POST");
+                            httpURLConnection.setDoOutput(true);
+                            OutputStream OS = httpURLConnection.getOutputStream();
+                            BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(OS, "UTF-8"));
+                            String data = URLEncoder.encode("msg", "UTF-8") + "=" + URLEncoder.encode(msg, "UTF-8") + "&" +
+                                    URLEncoder.encode("recipient", "UTF-8") + "=" + URLEncoder.encode(recipient, "UTF-8") + "&" +
+                                    URLEncoder.encode("sender", "UTF-8") + "=" + URLEncoder.encode(sender, "UTF-8")+ "&" +
+                                    URLEncoder.encode("msgID", "UTF-8") + "=" + URLEncoder.encode(msgID, "UTF-8");
+                            bufferedWriter.write(data);
+                            bufferedWriter.flush();
+                            bufferedWriter.close();
+                            OS.close();
+                            InputStream IS = httpURLConnection.getInputStream();
+                            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(IS,"iso-8859-1"));
+                            String response = "";
+                            String line  = "";
+                            while ((line = bufferedReader.readLine())!=null)
+                            {
+                                response+= line;
+                            }
+                            bufferedReader.close();
+                            IS.close();
+                            httpURLConnection.disconnect();
+
+                        } catch (MalformedURLException e) {
+                            e.printStackTrace();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+
+                        Toast.makeText(getApplicationContext(),"Message Sent!",Toast.LENGTH_LONG).show();
+                        startActivity(new Intent(GroupMembersActivity.this, LoginActivity.class));
+                    }
+                });
+                Button profileRtn = (Button) findViewById(R.id.profilertn);
+                profileRtn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        startActivity(new Intent(GroupMembersActivity.this, LoginActivity.class));
+                    }
+                });
             }
         });
     }
@@ -220,5 +301,76 @@ public class GroupMembersActivity extends AppCompatActivity {
 
     public void getGroupMemberName() {
         new GetGroupMemberName().execute();
+    }
+
+
+    class GetEmailFromName extends AsyncTask<Void, Void, String> {
+        String fetchemailfromname_url;
+        String name = selectedName;
+
+        @Override
+        protected void onPreExecute() {
+            fetchemailfromname_url = "http://52.25.144.228/fetchemailfromname.php";
+        }
+
+        @Override
+        protected String doInBackground(Void... params) {
+            try {
+                URL url = new URL(fetchemailfromname_url);
+                HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
+                httpURLConnection.setRequestMethod("POST");
+                httpURLConnection.setDoOutput(true);
+                httpURLConnection.setDoInput(true);
+                OutputStream outputStream = httpURLConnection.getOutputStream();
+                BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(outputStream, "UTF-8"));
+                String sData = URLEncoder.encode("sName", "UTF-8") + "=" + URLEncoder.encode(name, "UTF-8");
+                bufferedWriter.write(sData);
+                bufferedWriter.flush();
+                bufferedWriter.close();
+                outputStream.close();
+                InputStream inputStream = httpURLConnection.getInputStream();
+                BufferedReader bufferedReader = new BufferedReader((new InputStreamReader(inputStream)));
+                StringBuilder stringBuilder = new StringBuilder();
+                while ((response = bufferedReader.readLine()) != null) {
+                    stringBuilder.append(response + "\n");
+                }
+
+                bufferedReader.close();
+                inputStream.close();
+                httpURLConnection.disconnect();
+                return stringBuilder.toString().trim();
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onProgressUpdate(Void... values) {
+
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            response = result;
+            try {
+                jsonObject = new JSONObject(response);
+                jsonArray = jsonObject.getJSONArray("student");
+                int count = 0;
+                while (count < jsonArray.length()) {
+                    JSONObject JO = jsonArray.getJSONObject(count);
+                    convertedEmail = JO.getString("sEmail");
+                    count++;
+            }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public void getEmailFromName() {
+        new GetEmailFromName().execute();
     }
 }
