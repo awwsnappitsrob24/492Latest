@@ -45,6 +45,7 @@ public class BackgroundTask extends AsyncTask <String, Void, String> {
     protected String doInBackground(String... params) {
         String acc_reg_url = "http://52.25.144.228/reg3.php";
         String class_reg_url = "http://52.25.144.228/classreg2.php";
+        String profile_reg_url = "http://52.25.144.228/profileReg.php";
         String search_url = "http://cecs492beachbuddy.site88.net/search.php"; // TBD
         String method = params[0];
 
@@ -62,6 +63,40 @@ public class BackgroundTask extends AsyncTask <String, Void, String> {
                 String data = URLEncoder.encode("sName", "UTF-8") + "=" + URLEncoder.encode(sName, "UTF-8") + "&" +
                         URLEncoder.encode("sEmail", "UTF-8") + "=" + URLEncoder.encode(sEmail, "UTF-8") + "&" +
                         URLEncoder.encode("sFacebookID", "UTF-8") + "=" + URLEncoder.encode(sFacebookID, "UTF-8");
+                bufferedWriter.write(data);
+                bufferedWriter.flush();
+                bufferedWriter.close();
+                OS.close();
+                InputStream IS = httpURLConnection.getInputStream();
+                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(IS,"iso-8859-1"));
+                String response = "";
+                String line  = "";
+                while ((line = bufferedReader.readLine())!=null)
+                {
+                    response+= line;
+                }
+                bufferedReader.close();
+                IS.close();
+                httpURLConnection.disconnect();
+                return response;
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        else if (method.equals("profile")) {
+           String sEmail = params[1];
+
+            try {
+                URL url = new URL(profile_reg_url);
+                HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
+                httpURLConnection.setRequestMethod("POST");
+                httpURLConnection.setDoOutput(true);
+                OutputStream OS = httpURLConnection.getOutputStream();
+                BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(OS, "UTF-8"));
+                String data = URLEncoder.encode("sEmail", "UTF-8") + "=" + URLEncoder.encode(sEmail, "UTF-8");
                 bufferedWriter.write(data);
                 bufferedWriter.flush();
                 bufferedWriter.close();

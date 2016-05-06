@@ -7,6 +7,7 @@ import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -46,25 +47,34 @@ public class ProfileActivity extends AppCompatActivity {
     private CallbackManager callbackManager;
 
     static TextView name, email;
-    Button addToGroup, sendMessage, viewGroupMembers;
+    Button addToGroup, sendMessage;
     private ProfilePictureView profilePictureView;
     URL img_url;
     Bitmap bmp;
-    String previousActivity;
-
     public static String emailInvite, inviteClassID;
-
+    Toolbar toolbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.profile_layout);
 
-        profilePictureView = (ProfilePictureView)findViewById(R.id.profilePic);
+       // profilePictureView = (ProfilePictureView)findViewById(R.id.profilePic);
         name = (TextView)findViewById(R.id.nameText);
         email = (TextView)findViewById(R.id.emailText);
         name.setText(NavigationActivity.studentName);
         email.setText(NavigationActivity.studentEmail);
+
+
+        String profileName = name.getText().toString();
+        ProfilePictureView profilePictureView;
+        profilePictureView = (ProfilePictureView) findViewById(R.id.profilePic);
+        profilePictureView.setProfileId(NavigationActivity.ID);
+
+        toolbar = (Toolbar)findViewById(R.id.toolbar);
+        toolbar.setTitle("");
+        setSupportActionBar(toolbar);
+        toolbar.setTitle(profileName+"'s Profile");
 
         FacebookSdk.sdkInitialize(getApplicationContext());
         callbackManager = CallbackManager.Factory.create();
@@ -119,21 +129,15 @@ public class ProfileActivity extends AppCompatActivity {
             }
         });
 
-        viewGroupMembers = (Button)findViewById(R.id.viewGroupMembers);
-        viewGroupMembers.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-            }
-        });
-
         if (android.os.Build.VERSION.SDK_INT > 9) {
             StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
             StrictMode.setThreadPolicy(policy);
         }
-
+/*
         // figure this out for whenever activity is MEMBER
         try {
+
+
             img_url = new URL("https://graph.facebook.com/" + NavigationActivity.ID + "/picture");
             bmp = BitmapFactory.decodeStream(img_url.openConnection().getInputStream());
             profilePictureView.setDefaultProfilePicture(bmp);
@@ -141,11 +145,17 @@ public class ProfileActivity extends AppCompatActivity {
             profilePictureView.setVisibility(View.VISIBLE);
 
 
+            ProfilePictureView profilePictureView;
+            profilePictureView = (ProfilePictureView) findViewById(R.id.userProf_image);
+            profilePictureView.setProfileId(NavigationActivity.ID);
+
+
         } catch (MalformedURLException e) {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
+        */
     }
 
     @Override

@@ -7,9 +7,25 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.Signature;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
+import android.graphics.Rect;
+import android.graphics.RectF;
 import android.os.AsyncTask;
+import android.support.design.widget.NavigationView;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
+import android.text.Html;
+import android.text.method.LinkMovementMethod;
 import android.util.Base64;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -42,6 +58,7 @@ import com.facebook.login.widget.ProfilePictureView;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.w3c.dom.Text;
 
 
 import java.io.BufferedReader;
@@ -61,7 +78,7 @@ import java.util.Arrays;
 
 
 // ADD SEARCH TO MENU NEXT TO SETTINGS DOTS LATER
-public class LoginActivity extends AppCompatActivity {
+public class LoginActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener{
 
 
     private CallbackManager callbackManager;
@@ -80,20 +97,21 @@ public class LoginActivity extends AppCompatActivity {
     private static Button viewInvites;
     private static Button viewMessages;
     private static Button viewGroups;
-    private String sName, sFbId;
+    private String sName;
     public static String inviteName, inviteID, responseString, sEmail;
-
+    //changes id to static, was private, for profile editor
+    static String sFbId;
     static boolean isLoggedIn;
     static JSONObject logger;
 
+
+    public static TextView beachbuddyTV,registerTV;
     InviteAdapter inviteAdapter;
-/*
-    //check logged in state
-    public boolean isLoggedIn() {
-        AccessToken accessToken = AccessToken.getCurrentAccessToken();
-        return accessToken != null;
-    }
-*/
+
+    DrawerLayout drawerLayout;
+    ActionBarDrawerToggle actionBarDrawerToggle;
+    Toolbar toolbar;
+    NavigationView navigationView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -101,10 +119,12 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         FacebookSdk.sdkInitialize(getApplicationContext());
         callbackManager = CallbackManager.Factory.create();
-        Log.v("login", "login is: " +  isLoggedIn);
+        Log.v("login", "login is: " + isLoggedIn);
         Log.v("object","login is:" + logger);
 
         setContentView(R.layout.login_layout);
+
+
         if(isLoggedIn == true){
             loginButton = (LoginButton) findViewById(R.id.login_button);
 
@@ -120,7 +140,11 @@ public class LoginActivity extends AppCompatActivity {
             viewInvites = (Button)findViewById(R.id.viewInvites);
             viewMessages = (Button)findViewById(R.id.viewMsg);
             viewGroups = (Button)findViewById(R.id.viewGroups);
+            registerTV.setVisibility(View.GONE);
+            beachbuddyTV.setVisibility(View.GONE);
             setProfileToView(logger);
+
+
 
         }
         else if(isLoggedIn == false){
@@ -137,39 +161,17 @@ public class LoginActivity extends AppCompatActivity {
             viewInvites = (Button)findViewById(R.id.viewInvites);
             viewMessages = (Button)findViewById(R.id.viewMsg);
             viewGroups = (Button)findViewById(R.id.viewGroups);
+
+            beachbuddyTV = (TextView)findViewById(R.id.loginHeaderBeach);
+            registerTV = (TextView)findViewById(R.id.registerToFB);
+            registerTV.setVisibility(View.VISIBLE);
+            beachbuddyTV.setVisibility(View.VISIBLE);
+            TextView registerFB = (TextView)findViewById(R.id.registerToFB);
+            registerFB.setTextColor(Color.WHITE);
+            registerFB.setMovementMethod(LinkMovementMethod.getInstance());
         }
 
-        info = (TextView) findViewById(R.id.info);
-        try {
-            PackageInfo info = getPackageManager().getPackageInfo(
-                    "com.example.robien.beachbuddy",
-                    PackageManager.GET_SIGNATURES);
-            for (Signature signature : info.signatures) {
-                MessageDigest md = MessageDigest.getInstance("SHA");
-                md.update(signature.toByteArray());
-                Log.d("KeyHash:", Base64.encodeToString(md.digest(), Base64.DEFAULT));
-            }
-        } catch (PackageManager.NameNotFoundException e) {
-
-        } catch (NoSuchAlgorithmException e) {
-
-        }
         loginButton = (LoginButton) findViewById(R.id.login_button);
-
-/*
-        email = (TextView)findViewById(R.id.email);
-        facebookName = (TextView)findViewById(R.id.name);
-
-
-        infoLayout = (LinearLayout)findViewById(R.id.layout_info);
-        relLayout = (LinearLayout)findViewById(R.id.layout_info1);
-        profilePictureView = (ProfilePictureView)findViewById(R.id.image);
-        classButt = (Button)findViewById(R.id.classButton);
-        searchButt = (Button)findViewById(R.id.searchButton);
-        viewInvites = (Button)findViewById(R.id.viewInvites);
-        //loginButton.setReadPermissions(Arrays.asList("public_profile"));
-
- */
         loginButton.setReadPermissions(Arrays.asList("public_profile, email, user_birthday"));
         loginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
             @Override
@@ -183,6 +185,7 @@ public class LoginActivity extends AppCompatActivity {
                                 logger = object;
                                 setProfileToView(object);
                                 registerAccount(object);
+                                registerProfile(object);
 
                             }
                         });
@@ -205,29 +208,40 @@ public class LoginActivity extends AppCompatActivity {
         });
 
 
-        loginButton.setOnClickListener(new View.OnClickListener(){
+        loginButton.setOnClickListener(new View.OnClickListener() {
 
             @Override
-        public void onClick(View v){
-                if(isLoggedIn == true){
-                isLoggedIn = false;
-                Log.v("login", "login is 2: " +  isLoggedIn);
-                LoginManager.getInstance().logOut();
-                startActivity(new Intent(LoginActivity.this, LoginActivity.class));
+            public void onClick(View v) {
+                if (isLoggedIn == true) {
+                    isLoggedIn = false;
+                    Log.v("login", "login is 2: " + isLoggedIn);
+                    LoginManager.getInstance().logOut();
+                    startActivity(new Intent(LoginActivity.this, LoginActivity.class));
                 }
 
             }
         });
 
         viewInvites = (Button)findViewById(R.id.viewInvites);
-        // email, returns classes
         viewInvites.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                getJSONInvites(v);
+                getJSONInvites();
+                Intent viewInvitesIntent = new Intent(getApplicationContext(), InviteActivity.class);
+                startActivity(viewInvitesIntent);
             }
         });
 
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        actionBarDrawerToggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.drawer_open, R.string.drawer_close);
+        drawerLayout.addDrawerListener(actionBarDrawerToggle);
+        navigationView = (NavigationView) findViewById(R.id.navigation_view);
+        navigationView.setNavigationItemSelectedListener(this);
+
+        //View headerLayout = navigationView.inflateHeaderView(R.layout.nav_profile_header);
+        //navigationView.addHeaderView(headerLayout);
     }
 
     @Override
@@ -245,6 +259,7 @@ public class LoginActivity extends AppCompatActivity {
 
             profilePictureView.setPresetSize(ProfilePictureView.NORMAL);
             profilePictureView.setProfileId(jsonObject.getString("id"));
+
             relLayout.setVisibility(View.INVISIBLE);
             infoLayout.setVisibility(View.VISIBLE);
             classButt.setVisibility(View.VISIBLE);
@@ -252,6 +267,8 @@ public class LoginActivity extends AppCompatActivity {
             viewInvites.setVisibility(View.VISIBLE);
             viewMessages.setVisibility(View.VISIBLE);
             viewGroups.setVisibility(View.VISIBLE);
+            registerTV.setVisibility(View.GONE);
+            beachbuddyTV.setVisibility(View.GONE);
 
             //check messages in background
             getMessageNotification();
@@ -260,6 +277,45 @@ public class LoginActivity extends AppCompatActivity {
             e.printStackTrace();
         }}
 
+
+    @Override
+    public boolean onNavigationItemSelected(MenuItem item){
+        switch(item.getItemId()){
+            //uses drawer_menu.xml
+            case R.id.addclass_id:
+                Log.v("sEmail", "sEmail is: " +  sEmail);
+                BackgroundTask bt = new BackgroundTask(this);
+                bt.execute(sEmail);
+                startActivity(new Intent(this, RegClassActivity.class));
+                break;
+            case R.id.search_id:
+                startActivity(new Intent(this,NavigationActivity.class));
+                break;
+            case R.id.home_id:
+                break;
+            case R.id.profile_id:
+                startActivity(new Intent(this, ViewProfile.class));
+                break;
+            case R.id.invite_id:
+                getJSONInvites();
+                Intent viewInvitesIntent = new Intent(getApplicationContext(), InviteActivity.class);
+                startActivity(viewInvitesIntent);
+                break;
+            case R.id.group_id:
+                startActivity(new Intent(this,GroupsView.class));
+                break;
+            case R.id.message_id:
+                startActivity(new Intent(this,MessageView.class));
+                break;
+
+            case R.id.help_id:
+                startActivity(new Intent(this, ScreenslideTutorialActivity.class));
+                break;
+        }
+
+
+        return true;
+    }
 
     public void registerAccount(JSONObject object) {
         sName = object.optString("name");
@@ -270,12 +326,22 @@ public class LoginActivity extends AppCompatActivity {
         bt.execute(method, sName, sEmail, sFbId);
     }
 
+    public void registerProfile(JSONObject object) {
+        //sName = object.optString("name");
+        sEmail = email.getText().toString();
+        //sFbId = object.optString("id");
+        String method = "profile";
+        BackgroundTask bt = new BackgroundTask(this);
+        bt.execute(method,sEmail);
+    }
 
+    //going to be not used
     public void userReg(View view) {
 
         startActivity(new Intent(this, RegPersonInfoActivity.class));
     }
 
+    //going to be not used
     public void classReg(View view){
         Log.v("sEmail", "sEmail is: " +  sEmail);
         BackgroundTask bt = new BackgroundTask(this);
@@ -284,20 +350,35 @@ public class LoginActivity extends AppCompatActivity {
         startActivity(new Intent(this, RegClassActivity.class));
     }
 
+        //going to be not used
     public void classNav(View view) {
         Intent goToMainPageIntent = new Intent(this,NavigationActivity.class);
         startActivity(goToMainPageIntent);
     }
 
+    //going to be not used
     public void getMsgs(View view){
         Intent goToMainPageIntent = new Intent(this,MessageView.class);
         startActivity(goToMainPageIntent);
     }
 
+        //going to be not used
     public void getGroups(View view){
         Intent goToGroupsIntent = new Intent(this, GroupsView.class);
         startActivity(goToGroupsIntent);
     }
+    //sets the header, not yet used
+    public void setNavigationHeader(){
+        View header= LayoutInflater.from(this).inflate(R.layout.nav_profile_header,null);
+        navigationView.addHeaderView(header);
+    }
+
+    // hamburger icon
+     @Override
+     protected void onPostCreate(Bundle savedInstanceState) {
+         super.onPostCreate(savedInstanceState);
+         actionBarDrawerToggle.syncState();
+     }
 
     class GetJSONInvites extends AsyncTask<Void, Void, String> {
         String fetchInvite_url;
@@ -364,14 +445,10 @@ public class LoginActivity extends AppCompatActivity {
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-
-            //Toast.makeText(getApplicationContext(), responseString, Toast.LENGTH_LONG).show();
-            Intent viewInvitesIntent = new Intent(getApplicationContext(), InviteActivity.class);
-            startActivity(viewInvitesIntent);
         }
     }
 
-    public void getJSONInvites(View v) {
+    public void getJSONInvites() {
         new GetJSONInvites().execute();
     }
 

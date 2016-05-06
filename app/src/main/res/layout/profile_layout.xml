@@ -2,14 +2,19 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-
+    <include
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:id="@+id/toolbar"
+        layout="@layout/toolbar_layout"
+        />
     <com.facebook.login.widget.ProfilePictureView
         android:id="@+id/profilePic"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="20dp" />
+        android:layout_marginTop="89dp"
+
+        android:layout_alignStart="@+id/nameText" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -17,10 +22,10 @@
         android:text="New Text"
         android:id="@+id/nameText"
         android:textSize="20dp"
-        android:layout_below="@+id/profilePic"
-        android:layout_centerHorizontal="true"
+        android:textStyle="bold"
         android:layout_gravity="center"
-        android:layout_marginTop="78dp" />
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -28,9 +33,10 @@
         android:text="New Text"
         android:id="@+id/emailText"
         android:textSize="20dp"
+        android:textStyle="bold"
         android:gravity="center"
-        android:layout_centerVertical="true"
-        android:layout_alignStart="@+id/sendInvite" />
+        android:layout_below="@+id/nameText"
+        android:layout_centerHorizontal="true" />
 
     <Button
         android:layout_width="wrap_content"
@@ -45,14 +51,7 @@
         android:layout_height="wrap_content"
         android:text="Send Message"
         android:id="@+id/sendMessage"
-        android:layout_above="@+id/viewGroupMembers"
-        android:layout_centerHorizontal="true" />
-
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="View Group Members"
-        android:id="@+id/viewGroupMembers"
+        android:layout_marginBottom="92dp"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true" />
 

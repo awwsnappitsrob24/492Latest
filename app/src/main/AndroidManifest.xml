@@ -6,6 +6,7 @@
 
 
     <application
+        android:hardwareAccelerated="true"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -31,8 +32,28 @@
 
 
         <activity
-            android:name=".RegPersonInfoActivity"
-            android:label="User Registration">
+        android:name=".RegPersonInfoActivity"
+        android:label="User Registration">
+        <intent-filter>
+            <action android:name="android.intent.action.MAIN" />
+
+            <category android:name="android.intent.category.DEFAULT" />
+        </intent-filter>
+    </activity>
+
+        <activity
+            android:name=".EditProfile"
+            android:label="Profile Editor">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".ViewProfile"
+            android:label="Profile View">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -109,6 +130,16 @@
         <activity
             android:name=".InviteActivity"
             android:label="Invites">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".ScreenslideTutorialActivity"
+            android:label="Tutorial">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -39,7 +40,7 @@ public class InviteActivity extends AppCompatActivity {
     JSONObject jsonObject;
     JSONArray jsonArray;
     String response;
-
+    Toolbar toolbar;
     public static String inviteID,inviteName;
 
     @Override
@@ -48,6 +49,12 @@ public class InviteActivity extends AppCompatActivity {
         setContentView(R.layout.invite_layout);
 
         inviteList = (ListView)findViewById(R.id.inviteList);
+
+
+        toolbar = (Toolbar)findViewById(R.id.toolbar);
+        toolbar.setTitle("");
+        setSupportActionBar(toolbar);
+        toolbar.setTitle("Invites");
 
         getFormattedInvites();
     }

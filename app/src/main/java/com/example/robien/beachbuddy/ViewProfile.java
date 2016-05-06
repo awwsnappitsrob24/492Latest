@@ -1,18 +1,18 @@
 package com.example.robien.beachbuddy;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
+
+import com.facebook.login.widget.ProfilePictureView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -31,67 +31,100 @@ import java.net.URL;
 import java.net.URLEncoder;
 
 /**
- * Created by DarthMerl on 4/7/2016.
+ * Created by DarthMerl on 5/6/2016.
  */
-public class GroupsView extends AppCompatActivity {
+public class ViewProfile extends AppCompatActivity {
 
-    ListView groupList;
-    GroupAdapter groupAdapter;
     JSONObject jsonObject;
     JSONArray jsonArray;
-    String response;
-    Toolbar toolbar;
-    public static Group selectedGroup;
-    public static String groupName, groupID;
+    Button editProf, returnHome;
+    EditText major, prof, fvClass, gradyr;
+
+    String userId, sEmail, response;
+    static String maj,pro,fclass, gyear;
+
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.groups_layout);
+        setContentView(R.layout.profileview_layout);
+        userId = LoginActivity.sFbId;
+        ProfilePictureView profilePictureView;
+        profilePictureView = (ProfilePictureView) findViewById(R.id.userProf_image);
+        profilePictureView.setProfileId(userId);
+        sEmail = LoginActivity.sEmail;
+
+        major = (EditText)findViewById(R.id.majorID);
+        major.setBackground(null);
+        major.setKeyListener(null);
+
+        prof = (EditText)findViewById(R.id.favProf);
+        prof.setKeyListener(null);
+        prof.setBackground(null);
+
+        fvClass = (EditText)findViewById(R.id.favClass);
+        fvClass.setKeyListener(null);
+        fvClass.setBackground(null);
+
+        gradyr = (EditText)findViewById(R.id.gradYear);
+        gradyr.setKeyListener(null);
+        gradyr.setBackground(null);
+
+        editProf = (Button)findViewById(R.id.editButton);
+        editProf.setText("Edit Profile");
 
 
-        groupList = (ListView)findViewById(R.id.groupList);
-        toolbar = (Toolbar)findViewById(R.id.toolbar);
-        toolbar.setTitle("");
-        setSupportActionBar(toolbar);
-        toolbar.setTitle("Associated Groups");
+        displayProfile();
+
+       // major.setText(maj);
+       // prof.setText(pro);
+       // fvClass.setText(fclass);
+       // gradyr.setText(gyear);
 
 
-
-        getGroups();
-
-        groupList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        editProf.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                selectedGroup = (Group)groupAdapter.getItem(position);
-
-                Intent membersIntent = new Intent(GroupsView.this, GroupMembersActivity.class);
-                startActivity(membersIntent);
+            public void onClick(View v) {
+                startActivity(new Intent(ViewProfile.this, EditProfile.class));
             }
         });
+        returnHome = (Button)findViewById(R.id.homeButton);
+        returnHome.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(ViewProfile.this, LoginActivity.class));
+            }
+        });
+
+
+
+
+
+
     }
 
-    class GetGroups extends AsyncTask<Void, Void, String> {
-        String fetchgroups_url;
-        String studentEmail = LoginActivity.sEmail;
+    class GetProfileView extends AsyncTask<Void, Void, String> {
 
+        String fetchProf;
 
         @Override
         protected void onPreExecute() {
-            fetchgroups_url = "http://52.25.144.228/getgroups.php";
+            fetchProf = "http://52.25.144.228/getProfile.php";
         }
 
         @Override
         protected String doInBackground(Void... params) {
+            Log.v("sEmail", "sEmail view is: " + sEmail);
+
             try {
-                URL url = new URL(fetchgroups_url);
+                URL url = new URL(fetchProf);
                 HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
                 httpURLConnection.setRequestMethod("POST");
                 httpURLConnection.setDoOutput(true);
                 httpURLConnection.setDoInput(true);
                 OutputStream outputStream = httpURLConnection.getOutputStream();
                 BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(outputStream, "UTF-8"));
-                String sData = URLEncoder.encode("sEmail", "UTF-8") + "=" + URLEncoder.encode(studentEmail, "UTF-8");
+                String sData = URLEncoder.encode("sEmail", "UTF-8") + "=" + URLEncoder.encode(sEmail, "UTF-8");
                 bufferedWriter.write(sData);
                 bufferedWriter.flush();
                 bufferedWriter.close();
@@ -123,28 +156,44 @@ public class GroupsView extends AppCompatActivity {
         @Override
         protected void onPostExecute(String result) {
             response = result;
+            //Log.v("response is","response is: "+response);
             try {
-                groupAdapter = new GroupAdapter(getBaseContext(), R.layout.group_row_layout);
+
                 jsonObject = new JSONObject(response);
-                jsonArray = jsonObject.getJSONArray("groups");
+                jsonArray = jsonObject.getJSONArray("profile");
                 int count = 0;
                 while (count < jsonArray.length()) {
                     JSONObject JO = jsonArray.getJSONObject(count);
-                    groupName = JO.getString("cName");
-                    groupID = JO.getString("cID");
-                    Group myGroup = new Group(groupName, groupID);
-                    groupList.setAdapter(groupAdapter);
-                    groupAdapter.add(myGroup);
+                    fclass = JO.getString("favClass");
+                    pro = JO.getString("favProf");
+                    gyear = JO.getString("gradYear");
+                    maj = JO.getString("major");
+
+
                     count++;
                 }
+                major.setText(maj);
+                prof.setText(pro);
+                fvClass.setText(fclass);
+                gradyr.setText(gyear);
 
             } catch (JSONException e) {
                 e.printStackTrace();
             }
+
         }
+
+
     }
 
-    public void getGroups() {//view v?
-        new GetGroups().execute();
+    public void displayProfile() {//view v?
+        new GetProfileView().execute();
     }
+
+
+
+
+
+
+
 }
