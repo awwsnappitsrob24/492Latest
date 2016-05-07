@@ -9,6 +9,7 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.WebView;
 import android.widget.TextView;
 
 public class SecondFragment extends Fragment {
@@ -32,7 +33,12 @@ public class SecondFragment extends Fragment {
 
         TextView textView = (TextView) v.findViewById(R.id.tvFragSecond);
         textView.setText(getArguments().getString("msg"));
+        textView.setVisibility(View.INVISIBLE);
 
+        WebView web = (WebView) v.findViewById(R.id.addClass);
+        web.loadUrl("http://52.25.144.228/addclass.png");
+        web.getSettings().setLoadWithOverviewMode(true);
+        web.getSettings().setUseWideViewPort(true);
         return v;
     }
 

@@ -9,6 +9,7 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.WebView;
 import android.widget.TextView;
 
 public class FourthFragment extends Fragment {
@@ -33,6 +34,12 @@ public class FourthFragment extends Fragment {
 
         TextView textView = (TextView) v.findViewById(R.id.tvFragFourth);
         textView.setText(getArguments().getString("msg"));
+        textView.setVisibility(View.INVISIBLE);
+
+        WebView web = (WebView) v.findViewById(R.id.invitegroup);
+        web.loadUrl("http://52.25.144.228/invitesGroups.png");
+        web.getSettings().setLoadWithOverviewMode(true);
+        web.getSettings().setUseWideViewPort(true);
 
         return v;
     }

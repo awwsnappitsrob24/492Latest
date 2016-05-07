@@ -4,14 +4,14 @@
     android:layout_height="match_parent"
     android:background="@android:color/holo_red_dark" >
 
-    <ImageView
+    <WebView
         android:layout_width="180dp"
         android:layout_height="180dp"
-        android:src="@drawable/invitetut"
-        android:id="@+id/invitetutorial"
-        android:layout_above="@+id/tvFragFourth"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="60dp" />
+        android:id="@+id/invitegroup"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentStart="true" />
 
     <TextView
         android:layout_width="wrap_content"
