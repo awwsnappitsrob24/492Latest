@@ -40,7 +40,7 @@ public class FirstFragment extends Fragment {
 
         TextView textView = (TextView) v.findViewById(R.id.tvFragFirst);
         textView.setText(getArguments().getString("msg"));
-        textView.setVisibility(View.INVISIBLE);
+        //textView.setVisibility(View.INVISIBLE);
         WebView web = (WebView) v.findViewById(R.id.loginProfileImage);
         web.loadUrl("http://52.25.144.228/home2.png");
         web.getSettings().setLoadWithOverviewMode(true);

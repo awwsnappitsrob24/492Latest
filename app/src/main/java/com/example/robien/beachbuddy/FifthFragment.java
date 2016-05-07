@@ -34,7 +34,7 @@ public class FifthFragment extends Fragment {
 
         TextView textView = (TextView) v.findViewById(R.id.tvFragFifth);
         textView.setText(getArguments().getString("msg"));
-        textView.setVisibility(View.INVISIBLE);
+        //textView.setVisibility(View.INVISIBLE);
 
         WebView web = (WebView) v.findViewById(R.id.messagetutorial);
         web.loadUrl("http://52.25.144.228/sendMessage.png");
